@@ -17,6 +17,7 @@ from continuous_log_analysis import analyze_continuous_log
 import converters.behavior_to_nwb
 from converters.ci_movie_to_nwb import convert_ci_movie
 from converters.ephys_to_nwb import convert_ephys_recording
+import converters.ephys_to_nwb
 from converters.nwb_saving import save_nwb_file
 import converters.nwb_saving
 from converters.subject_to_nwb import create_nwb_file_an
@@ -86,7 +87,29 @@ def files_to_config(mat_file, output_folder="data"):
         video_sr = 200
     else:
         video_sr = int(data["Video_sr"])
+    print("Video sampling rate:", video_sr)
 
+    # Check if all traces have the same number of frames and compute camera start delay and exposure time
+    Frames_per_Video = data["JawTrace"].shape[1]
+    if data["JawTrace"].shape[1] == Frames_per_Video and data["NoseSideTrace"].shape[1] == Frames_per_Video and data["NoseTopTrace"].shape[1] == Frames_per_Video and data["WhiskerAngle"].shape[1] == Frames_per_Video and data["TongueTrace"].shape[1] == Frames_per_Video :
+        pass
+    else:
+        error_message = "Inconsistent number of frames across traces."
+        raise ValueError(error_message)
+
+    if  np.array_equal(data["VideoOnsets"], data["TrialOnsets_All"]):
+        camera_start_delay = 0.0
+    elif np.all(data["VideoOnsets"] < data["TrialOnsets_All"]):
+        camera_start_delay = float(np.mean(data["TrialOnsets_All"] - data["VideoOnsets"]))
+    else:
+        error_message = "Problem with VideoOnsets and TrialOnsets_All timing."
+        camera_start_delay = "Unknown"
+        raise ValueError(error_message)
+    print("Camera start delay:", camera_start_delay)
+
+    video_duration = Frames_per_Video / video_sr
+
+    camera_exposure_time = 3
     experiment_description = {
     'reference_weight': ref_weight,
     #'wh_reward': 1,
@@ -98,8 +121,9 @@ def files_to_config(mat_file, output_folder="data"):
     #'aud_stim_weight': 2,
     'camera_flag': 1,
     'camera_freq': video_sr,
-    'camera_exposure_time': 3,
-    #'camera_start_delay': 3,
+    #'camera_exposure_time': camera_exposure_time,
+    'each_video_duration': video_duration,
+    'camera_start_delay': camera_start_delay,
     #'artifact_window': 100,
     'licence': str(subject_info.get("licence", "")).strip(),
     'ear tag': str(subject_info.get("Ear tag", "")).strip(),
@@ -140,9 +164,7 @@ def files_to_config(mat_file, output_folder="data"):
         except Exception:
             weight = "Unknown" 
 
-    ### Behavioral metadata extraction ###
-
-    camera_exposure_time = 3
+    ### Behavioral metadata extraction 
     camera_flag = 1
 
     # Construct the output YAML path
@@ -164,7 +186,7 @@ def files_to_config(mat_file, output_folder="data"):
             'slices': "na", 
             'source_script': 'na',
             'source_script_file_name': 'na',
-            'stimulus_notes': 'na',
+            'stimulus_notes': 'Whisker stimulation was applied unilaterally to the C2 region to evoke sensory responses.',
             'surgery': 'na',
             'virus': 'na',
 
@@ -184,11 +206,10 @@ def files_to_config(mat_file, output_folder="data"):
         },
         'behavioral_metadata': {
             #'behaviour_type': 'whisker',
-            'camera_exposure_time': camera_exposure_time,
             'camera_flag': camera_flag,
             #'path_to_config_file': 'path',
             #'setup': '',
-            #'trial_table': 'standard'
+            'trial_table': 'standard'
         },
     
         'ephys_metadata': {
@@ -201,7 +222,12 @@ def files_to_config(mat_file, output_folder="data"):
     with open(output_path, 'w') as f:
         yaml.dump(config, f, default_flow_style=False)
     
-    return output_path, config
+    if "Non" in subject_info.get("Session Type", "Unknown").strip():
+        Rewarded = False
+    else:
+        Rewarded = True
+
+    return output_path, config, Rewarded
 
 
 
@@ -228,7 +254,7 @@ def convert_data_to_nwb_an(mat_file, output_folder, with_time_string=True, outpu
     print("-_-_-_-_-_-_-_-_-_-_-_-_-_-_- NWB conversion _-_-_-_-_-_-_-_-_-_-_-_-_-_-_")
     print(" ")
     print(f"📃 Creating config file for NWB conversion :")
-    output_path, config_file = files_to_config(data, output_folder=output_folder_config)
+    output_path, config_file, Rewarded = files_to_config(data, output_folder=output_folder_config)
     print("   -", output_path)
     print(" ")
     print("📑 Created NWB file")
@@ -238,7 +264,10 @@ def convert_data_to_nwb_an(mat_file, output_folder, with_time_string=True, outpu
     print("     o 💬 Add behavior container")
     importlib.reload(converters.behavior_to_nwb)
     #convert_behavior_data(nwb_file=nwb_file, timestamps_dict=timestamps_dict, config_file=config_file)
-    converters.behavior_to_nwb.add_behavior_container(nwb_file=nwb_file, data=data, config=config_file)
+    if Rewarded:
+        converters.behavior_to_nwb.add_behavior_container_Rewarded(nwb_file=nwb_file, data=data, config=config_file)
+    else:
+        converters.behavior_to_nwb.add_behavior_container_Non_Rewarded(nwb_file=nwb_file, data=data, config=config_file)
     
     """
     if config_dict.get("two_photon_metadata") is not None:
@@ -297,7 +326,6 @@ def convert_data_to_nwb_an(mat_file, output_folder, with_time_string=True, outpu
     print("🔎 Validating NWB file before saving...")
     with NWBHDF5IO(nwb_path, 'r') as io:
         errors = validate(io=io)
-
 
     if not errors:
         print("     o ✅ File is valid, no errors detected.")
