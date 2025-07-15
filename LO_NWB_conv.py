@@ -11,15 +11,24 @@ import yaml
 import json
 import h5py
 import shutil
+import converters.behavior_to_nwb
+import converters.nwb_saving
+import converters.general_to_nwb
+import converters.subject_to_nwb
+import converters.acquisition_to_nwb
+import converters.units_to_nwb
+import converters.ephys_to_nwb
+
+
 import utils.utils_gf as utils_gf
 from continuous_log_analysis import analyze_continuous_log
 #from converters.behavior_to_nwb import convert_behavior_data
 import converters.behavior_to_nwb
 from converters.ci_movie_to_nwb import convert_ci_movie
 from converters.ephys_to_nwb import convert_ephys_recording
-import converters.ephys_to_nwb
 from converters.nwb_saving import save_nwb_file
 import converters.nwb_saving
+import converters.general_to_nwb
 from converters.subject_to_nwb import create_nwb_file_an
 import converters.subject_to_nwb
 from converters.suite2p_to_nwb import convert_suite2p_data
@@ -87,7 +96,6 @@ def files_to_config(mat_file, output_folder="data"):
         video_sr = 200
     else:
         video_sr = int(data["Video_sr"])
-    print("Video sampling rate:", video_sr)
 
     # Check if all traces have the same number of frames and compute camera start delay and exposure time
     Frames_per_Video = data["JawTrace"].shape[1]
@@ -105,7 +113,6 @@ def files_to_config(mat_file, output_folder="data"):
         error_message = "Problem with VideoOnsets and TrialOnsets_All timing."
         camera_start_delay = "Unknown"
         raise ValueError(error_message)
-    print("Camera start delay:", camera_start_delay)
 
     video_duration = Frames_per_Video / video_sr
 
@@ -180,7 +187,7 @@ def files_to_config(mat_file, output_folder="data"):
             'pharmacology': 'na',
             'protocol': 'na',
             'related_publications': related_publications,
-            'session_description': "ephys" +" " + str(subject_info.get("Session Type", "Unknown").strip()),
+            'session_description': "ephys" +" " + str(subject_info.get("Session Type", "Unknown").strip()) + ":" + " Acute extracellular recordings using NeuroNexus single-shank 32-channel probes. Bandpass filtered (0.3 Hz – 7.5 kHz), amplified and digitized at 30 kHz (CerePlex M32, Blackrock). Data recorded via CerePlex Direct system. DiI coating used for post hoc localization. Initial 5–10 strong-whisker stimulation trials excluded from analysis.",
             'session_id': session_id,
             'session_start_time': session_start_time,
             'slices': "na", 
@@ -204,17 +211,6 @@ def files_to_config(mat_file, output_folder="data"):
             'weight': weight,
 
         },
-        'behavioral_metadata': {
-            #'behaviour_type': 'whisker',
-            'camera_flag': camera_flag,
-            #'path_to_config_file': 'path',
-            #'setup': '',
-            'trial_table': 'standard'
-        },
-    
-        'ephys_metadata': {
-            'processed': 1
-        }
     }
 
     # save config
@@ -258,16 +254,46 @@ def convert_data_to_nwb_an(mat_file, output_folder, with_time_string=True, outpu
     print("   -", output_path)
     print(" ")
     print("📑 Created NWB file")
+    print("     o 📌 Add general metadata")
+    print("         - Subject metadata")
+    print("         - Session metadata")
     importlib.reload(converters.subject_to_nwb)
     nwb_file = converters.subject_to_nwb.create_nwb_file_an(config_file=output_path)
-    print("     o 🐭 Subject metadata & Session metadata")
-    print("     o 💬 Add behavior container")
+    print("         - Device metadata")
+    print("         - Extracellular electrophysiology metadata")
+    importlib.reload(converters.general_to_nwb)
+    if Rewarded:
+        electrode_table_region = converters.general_to_nwb.add_general_container_Rewarded(nwb_file=nwb_file, data=data, mat_file=mat_file)
+        pass
+    print("     o 📶 Add acquisition container")
+    """
+    print("electrode_region length:", len(electrode_table_region.data))
+    importlib.reload(converters.acquisition_to_nwb)
+    data_lfp= converters.acquisition_to_nwb.extract_lfp_signal(data, mat_file)
+    print("data_lfp shape:", data_lfp.shape)
+    #trial_onsets = np.asarray(data['TrialOnsets_All']).flatten()
+    #n_timepoints = data_lfp.shape[0]
+    #duration_in_seconds = trial_onsets[-1] + 1
+    #sampling_rate = float(round(n_timepoints / duration_in_seconds,4))
+    if Rewarded:
+        converters.acquisition_to_nwb.add_lfp_acquisition(nwb_file=nwb_file, signal_array=data_lfp, electrode_region=electrode_table_region)
+        pass
+    """
+    print("     o 🧠 Add units container")
+    importlib.reload(converters.units_to_nwb)
+    if Rewarded:
+        sampling_rate =  30000
+        converters.units_to_nwb.add_units_container_Rewarded(nwb_file=nwb_file, data=data, electrode_table_region=electrode_table_region, mat_file=mat_file , sampling_rate = sampling_rate)
+        pass
+    print("     o ⚙️ Add processing container")
     importlib.reload(converters.behavior_to_nwb)
     #convert_behavior_data(nwb_file=nwb_file, timestamps_dict=timestamps_dict, config_file=config_file)
     if Rewarded:
+        print("         - Behavior data")
         converters.behavior_to_nwb.add_behavior_container_Rewarded(nwb_file=nwb_file, data=data, config=config_file)
-    else:
-        converters.behavior_to_nwb.add_behavior_container_Non_Rewarded(nwb_file=nwb_file, data=data, config=config_file)
+        print("         - No ephys data for AN sessions")
+        pass
+
     
     """
     if config_dict.get("two_photon_metadata") is not None:
@@ -344,6 +370,3 @@ def convert_data_to_nwb_an(mat_file, output_folder, with_time_string=True, outpu
     print("**************************************************************************")
 
     return nwb_path
-
-
-
