@@ -18,6 +18,7 @@ import converters.subject_to_nwb
 import converters.acquisition_to_nwb
 import converters.units_to_nwb
 import converters.ephys_to_nwb
+import converters.analysis_to_nwb
 
 
 import utils.utils_gf as utils_gf
@@ -232,7 +233,7 @@ def files_to_config(mat_file, output_folder="data"):
 #############################################################
 
 
-def convert_data_to_nwb_an(mat_file, output_folder, with_time_string=True, output_folder_config="data"):
+def convert_data_to_nwb_an(mat_file, output_folder, with_time_string=True, output_folder_config="data", psth_window=(-0.2, 0.5), psth_bin=0.010 ):
     """
     :param config_file: Path to the yaml config file containing mouse ID and metadata for the session to convert
     :param output_folder: Path to the folder to save NWB files
@@ -266,19 +267,10 @@ def convert_data_to_nwb_an(mat_file, output_folder, with_time_string=True, outpu
         electrode_table_region = converters.general_to_nwb.add_general_container_Rewarded(nwb_file=nwb_file, data=data, mat_file=mat_file)
         pass
     print("     o 📶 Add acquisition container")
-    """
-    print("electrode_region length:", len(electrode_table_region.data))
     importlib.reload(converters.acquisition_to_nwb)
-    data_lfp= converters.acquisition_to_nwb.extract_lfp_signal(data, mat_file)
-    print("data_lfp shape:", data_lfp.shape)
-    #trial_onsets = np.asarray(data['TrialOnsets_All']).flatten()
-    #n_timepoints = data_lfp.shape[0]
-    #duration_in_seconds = trial_onsets[-1] + 1
-    #sampling_rate = float(round(n_timepoints / duration_in_seconds,4))
     if Rewarded:
-        converters.acquisition_to_nwb.add_lfp_acquisition(nwb_file=nwb_file, signal_array=data_lfp, electrode_region=electrode_table_region)
+        converters.acquisition_to_nwb.add_lfp_acquisition(nwb_file=nwb_file, signal_array=converters.acquisition_to_nwb.extract_lfp_signal(data, mat_file), electrode_region=electrode_table_region)
         pass
-    """
     print("     o 🧠 Add units container")
     importlib.reload(converters.units_to_nwb)
     if Rewarded:
@@ -287,11 +279,14 @@ def convert_data_to_nwb_an(mat_file, output_folder, with_time_string=True, outpu
         pass
     print("     o ⚙️ Add processing container")
     importlib.reload(converters.behavior_to_nwb)
+    importlib.reload(converters.analysis_to_nwb)
     #convert_behavior_data(nwb_file=nwb_file, timestamps_dict=timestamps_dict, config_file=config_file)
     if Rewarded:
         print("         - Behavior data")
         converters.behavior_to_nwb.add_behavior_container_Rewarded(nwb_file=nwb_file, data=data, config=config_file)
         print("         - No ephys data for AN sessions")
+        print("         - Analysis complementary information")
+        converters.analysis_to_nwb.add_analysis_container_Rewarded(nwb_file=nwb_file,psth_window=psth_window,psth_bin=psth_bin)
         pass
 
     
@@ -344,6 +339,8 @@ def convert_data_to_nwb_an(mat_file, output_folder, with_time_string=True, outpu
                                  video_timestamps={k: timestamps_dict[k] for k in ("cam1", "cam2")})
 
     """
+
+
     # Validate the NWB & saving
     importlib.reload(converters.nwb_saving)
     nwb_path = converters.nwb_saving.save_nwb_file(nwb_file=nwb_file, output_folder=output_folder, with_time_string=with_time_string)
