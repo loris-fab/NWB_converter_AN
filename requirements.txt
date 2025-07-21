@@ -41,7 +41,6 @@ dask==2024.8.0
 debugpy==1.8.14
 decorator==5.2.1
 defusedxml==0.7.1
-dlc2kinematics==0.0.7
 dnspython==2.7.0
 docutils==0.21.2
 email_validator==2.2.0
@@ -59,7 +58,7 @@ fsspec==2025.5.1
 gast==0.4.0
 h11==0.16.0
 h5py==3.8.0
-hdmf==3.9.0
+hdmf>=3.14.5
 hdmf_zarr==0.11.1
 httpcore==1.0.9
 httpx==0.28.1
@@ -171,7 +170,7 @@ pydantic_core==2.33.2
 pygame==2.6.1
 Pygments==2.19.2
 pynndescent==0.5.13
-pynwb==2.5.0
+pynwb>=2.8.3
 pyout==0.8.1
 pyparsing==3.0.9
 pyrsistent==0.19.3

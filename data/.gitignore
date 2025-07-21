@@ -1,0 +1,9 @@
+# Ignorer le dossier des données
+data/
+
+# Fichiers Python inutiles
+__pycache__/
+*.pyc
+
+# Fichiers système
+.DS_Store
