@@ -1,13 +1,12 @@
 # converters/analysis_to_nwb.py
 import numpy as np
-import h5py
 from pynwb import ProcessingModule
 from pynwb.base import TimeSeries
 import matplotlib.pyplot as plt
 
-def add_analysis_container_Rewarded(
+def add_analysis_container(
     *,
-    nwb_file,
+    nwb_file, Rewarded,
     psth_window,         # seconds around stimulus
     psth_bin                  # 10-ms bins
 ):
@@ -51,10 +50,12 @@ def add_analysis_container_Rewarded(
     n_units = len(nwb_file.units['spike_times'].data[:])
     psth_matrix = np.zeros((n_units, n_bins), dtype=np.float32)
 
-
-    TrialOnsets_All = nwb_file.processing['behavior'].data_interfaces['BehavioralEvents'].time_series["TrialOnsets"].timestamps[:]
-    stim_indice = nwb_file.processing['behavior'].data_interfaces['BehavioralEvents'].time_series["StimFlags"].data[:]
-    stim_times = TrialOnsets_All[stim_indice >= 1]
+    if Rewarded:
+        TrialOnsets_All = nwb_file.processing['behavior'].data_interfaces['BehavioralEvents'].time_series["TrialOnsets"].timestamps[:]
+        stim_indice = nwb_file.processing['behavior'].data_interfaces['BehavioralEvents'].time_series["StimFlags"].data[:]
+        stim_times = TrialOnsets_All[stim_indice >= 1]
+    else:
+        stim_times = nwb_file.processing['behavior'].data_interfaces['BehavioralEvents'].time_series["StimFlags"].timestamps[:]
 
     for u in range(n_units): # loop over units
         # spike times for unit u
@@ -67,7 +68,7 @@ def add_analysis_container_Rewarded(
         # convert to rate (Hz): counts / (n_trials * bin_width)
         psth_matrix[u, :] = counts / (len(stim_times) * psth_bin)
 
-
+    """
     psth_ts = TimeSeries(
         name="PSTH_all_units",
         data=psth_matrix.T,
@@ -78,11 +79,10 @@ def add_analysis_container_Rewarded(
         comments="Rows = units, columns = time-bins"
     )
     ana_mod.add_data_interface(psth_ts)
+    """
 
-
-    psth = nwb_file.processing['analysis']['PSTH_all_units']
-    timestamps = psth.timestamps[:]
-    data_all_units = psth.data[:]  # shape = (n_timepoints, n_units)
+    timestamps = bin_centers
+    data_all_units = psth_matrix.T  # shape = (n_timepoints, n_units)
     mean_psth = np.mean(data_all_units, axis=1)
 
     # Create a TimeSeries for the mean PSTH
@@ -91,26 +91,11 @@ def add_analysis_container_Rewarded(
         data=mean_psth,
         unit='Hz',
         timestamps=timestamps,
-        description="Mean PSTH across all units"
+        description=f"Mean PSTH across all units (bin={psth_bin*1e3:.0f} ms) averaged over {len(stim_times)} stimulation; "
+                    f"window {start_w}s → {stop_w}s around whisker stimulus."
     )
 
-    nwb_file.processing['analysis'].add(psth_mean_ts)
-    psth = nwb_file.processing['analysis']['PSTH_all_units']
-    timestamps = psth.timestamps[:]
-
-    # plot an example PSTH for the first 3 units
-    plt.figure(figsize=(8, 4))
-    for u in range(min(3, n_units)):
-        plt.plot(timestamps, data_all_units[:, u], label=f"Unit {u+1}")
-    plt.axvline(x=0, color='red', linestyle='--', label="Stimulus")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Firing Rate (Hz)")
-    plt.title("PSTH - First 3 Units")
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig("data/analysis/psth_example.png")
-    plt.close()
-    print("             > Added PSTH to analysis module (see plot: data/analysis/psth_example.png)")
+    ana_mod.add_data_interface(psth_mean_ts)
 
     # plot an PSTHmean
     plt.figure(figsize=(8, 4))
@@ -123,7 +108,7 @@ def add_analysis_container_Rewarded(
     plt.tight_layout()
     plt.savefig("data/analysis/psth_mean.png")
     plt.close()
-    print("             > Added PSTH_mean to analysis module (see plot: data/analysis/psth_mean.png)")
+    print("             > Added PSTH_mean_across_all_units to analysis module")
 
 
     ###################
@@ -164,10 +149,22 @@ def add_analysis_container_Rewarded(
     )
     ana_mod.add_data_interface(mean_lfp_ts)
 
+    # Compute mean across electrodes (1D signal : time only)
+    mean_lfp_all_channels = mean_lfp.mean(axis=0)  # shape: (time,)
 
-    #nwb_file.processing['analysis'].add(mean_lfp_ts)
-    #mean_lfp = nwb_file.processing['analysis']['MeanLFP'].data[:]
-    #lfp_times = nwb_file.processing['analysis']['MeanLFP'].timestamps[:]
+    # Create new TimeSeries for the global mean LFP
+    mean_lfp_global_ts = TimeSeries(
+        name="MeanLFP_global",
+        data=mean_lfp_all_channels,
+        unit="volts",
+        timestamps=lfp_times,
+        description="Average LFP across all electrodes, aligned to stimulus",
+        comments="Mean of MeanLFP_all_electrodes across channels and averaged across trials; same window and alignment as PSTH."
+    )
+
+    # Add it to the analysis module
+    ana_mod.add_data_interface(mean_lfp_global_ts)
+
 
     # plot the mean LFP
     plt.figure(figsize=(8, 4))
@@ -183,5 +180,18 @@ def add_analysis_container_Rewarded(
     plt.close()
 
     print("             > Added mean LFP to analysis module")
+
+    # plot the global mean LFP
+    plt.figure(figsize=(8, 4))
+    plt.plot(lfp_times, mean_lfp_all_channels, label="Global Mean LFP")
+    plt.axvline(x=0, color='red', linestyle='--', label="Stimulus")
+    plt.xlabel("Time (s)")
+    plt.ylabel("LFP (V)")
+    plt.title("Global Mean LFP")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("data/analysis/mean_lfp_global.png")
+    plt.close()
+    print("             > Added global mean LFP to analysis module")
 
     return None

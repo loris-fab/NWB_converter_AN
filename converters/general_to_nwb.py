@@ -2,10 +2,9 @@
 from uuid import uuid4
 import numpy as np
 import h5py
-import pandas as pd
 
 
-def add_general_container_Rewarded(nwb_file, data, mat_file):
+def add_general_container(nwb_file, data, mat_file):
     """
     Add general metadata including devices and extracellular electrophysiology to the NWB file.
     
@@ -58,46 +57,64 @@ def add_general_container_Rewarded(nwb_file, data, mat_file):
         obj = f[ref]
         shank2 = np.array(obj)
 
+        area_array = np.array([
+        f[ref[0]][()].tobytes().decode('utf-16le').strip()
+        for ref in data['Area']])
+
+        if len(np.unique(area_array)) == 2:
+            area_one, area_two = np.unique(area_array)
+        elif len(np.unique(area_array)) == 1:
+            area_one = area_two = np.unique(area_array)[0]
+        else:
+            raise ValueError("Expected one or two unique areas, found: {}".format(np.unique(area_array)))
+
     shank_total = np.concatenate((shank1, shank2), axis=1)
 
     # Sanity check
     assert shank_total.shape == (3, 64), "Expected shape of shank_total is (3, 64), got {}".format(shank_total.shape)
 
     # Create group for each shank
-    shank_group = nwb_file.create_electrode_group(
-        name="Shank",
-        description="First Neuropixels shank",
-        location="Left & right cortex : Allen Brain Atlas (ML, DV, AP coordinates)",
+    shank_1 = nwb_file.create_electrode_group(
+        name="Shank one",
+        description="NeuroNexus A1x32 probe, Shank 1",
+        location="In the {} according to the Allen Brain Atlas".format(area_one),
         device=probe
     )
+    shank_2 = nwb_file.create_electrode_group(
+        name="Shank two",
+        description="NeuroNexus A1x32 probe, Shank 2",
+        location="In the {} according to the Allen Brain Atlas".format(area_two),
+        device=probe
+    )
+
     with h5py.File(mat_file, 'r') as f:
         nwb_file.add_electrode_column(name="ccf_ml", description="ccf coordinate in ml axis")
         nwb_file.add_electrode_column(name="ccf_ap", description="ccf coordinate in ap axis")
         nwb_file.add_electrode_column(name="ccf_dv", description="ccf coordinate in dv axis")
-        nwb_file.add_electrode_column(name="shank", description="Shank number (1 or 2)")
 
         # Add electrodes from Shank1
         for i in range(64):
             ml, dv, ap = shank_total[:, i]
             if i < 33:
-                shank = "Shank1"
+                shank = shank_1
+                loca = area_one
             else:
-                shank = "Shank2"
+                shank = shank_2
+                loca = area_two
             nwb_file.add_electrode(
                 id=i,
-                location="the location of channel within the subject e.g. brain region (see Allen Brain Atlas)",
+                location=loca,
                 # Group, group_name,index_on_probe,
                 ccf_ml=ml,
                 ccf_dv=dv,
                 ccf_ap=ap,
-                shank=shank,
                 # shank_col,shank_row,ccf_id,ccf_acronym,cff_name,cff_parent_id,cff_parent_acronym,cff_parent_name,
                 #rel_x = np.nan,  # x coordinate in the probe space
                 #rel_y = np.nan,  # y coordinate in the probe space
                 #rel_z = np.nan,  # z coordinate in the probe space
                 #imp=np.nan,
                 #filtering="none",
-                group =shank_group,
+                group = shank,
             )
 
     #nwb_file.electrodes.to_dataframe()
@@ -112,26 +129,3 @@ def add_general_container_Rewarded(nwb_file, data, mat_file):
         description="All electrodes from Shank1 and Shank2"
     )
     return electrode_table_region
-
-
-
-
-def add_general_container_Non_Rewarded(nwb_file, data, mat_file):
-    """
-    Add general metadata including devices and extracellular electrophysiology to the NWB file.
-    
-    Parameters
-    ----------
-    nwb_file : pynwb.NWBFile
-        The existing NWB file object to update.
-    data : dict
-        Dictionary from the .mat file (already loaded, e.g., via h5py).
-    mat_file : str
-        Path to the original .mat file.
-
-    Returns
-    -------
-    electrode_table_region : pynwb.core.DynamicTableRegion
-        A region referencing all electrodes. Useful when creating ElectricalSeries.
-    """
-    return None
