@@ -4,6 +4,9 @@ from pynwb.behavior import BehavioralEvents, BehavioralTimeSeries
 from pynwb import TimeSeries
 
 
+################################################################
+# Functions for adding behavior container to NWB file
+################################################################
 
 def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
     """

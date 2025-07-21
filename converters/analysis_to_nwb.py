@@ -4,6 +4,11 @@ from pynwb import ProcessingModule
 from pynwb.base import TimeSeries
 import matplotlib.pyplot as plt
 
+#######################################################
+# Functions for converting analysis data to NWB format
+#######################################################
+
+
 def add_analysis_container(
     *,
     nwb_file, Rewarded,
@@ -20,8 +25,8 @@ def add_analysis_container(
     nwb_file : pynwb.NWBFile
     data : dict
         Already-loaded MATLAB 'Data' struct (keys → ndarrays / HDF refs)
-    mat_file : str
-        Path to the .mat file – needed to dereference variable-length cell arrays
+    Rewarded : bool
+        True if the session is rewarded, False otherwise
     psth_window : tuple
         (start, stop) window around each stimulus for the PSTH (seconds)
     psth_bin : float
@@ -106,8 +111,9 @@ def add_analysis_container(
     plt.title("PSTH - Mean Across Units")
     plt.legend()
     plt.tight_layout()
-    plt.savefig("data/analysis/psth_mean.png")
-    plt.close()
+    plt.show()
+    #plt.savefig("data/analysis/psth_mean.png")
+    #plt.close()
     print("             > Added PSTH_mean_across_all_units to analysis module")
 
 
@@ -116,7 +122,7 @@ def add_analysis_container(
     ###################
 
     # fetch raw LFP acquisition
-    lfp_acq = nwb_file.acquisition["ElectricalSeries : LFP"]
+    lfp_acq = nwb_file.acquisition["ElectricalSeries_LFP"]
     lfp_rate = lfp_acq.rate
     lfp_data = lfp_acq.data 
 
@@ -176,10 +182,10 @@ def add_analysis_container(
     plt.title("Mean LFP - First 3 Channels")
     plt.legend()
     plt.tight_layout()
-    plt.savefig("data/analysis/mean_lfp_example.png")
-    plt.close()
-
-    print("             > Added mean LFP to analysis module")
+    plt.show()
+    #plt.savefig("data/analysis/mean_lfp_example.png")
+    #plt.close()
+    print("             > Added LFP_mean_across_all_units to analysis module")
 
     # plot the global mean LFP
     plt.figure(figsize=(8, 4))
@@ -190,8 +196,9 @@ def add_analysis_container(
     plt.title("Global Mean LFP")
     plt.legend()
     plt.tight_layout()
-    plt.savefig("data/analysis/mean_lfp_global.png")
-    plt.close()
-    print("             > Added global mean LFP to analysis module")
+    plt.show()
+    #plt.savefig("data/analysis/mean_lfp_global.png")
+    #plt.close()
+    print("             > Added global_LFP to analysis module")
 
     return None

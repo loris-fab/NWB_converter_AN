@@ -7,6 +7,10 @@ from dateutil.tz import tzlocal
 from pynwb import NWBFile
 from pynwb.file import Subject
 
+#############################################################################
+# Function that creates the nwb file object using all metadata
+#############################################################################
+
 def create_nwb_file_an(config_file):
     """
     Create an NWB file object using all metadata containing in YAML file
@@ -84,16 +88,16 @@ def create_nwb_file_an(config_file):
     return nwb_file
 
 
-############################################################
-# Function that creates the config file for the NWB conversion
-############################################################
+#############################################################################
+# Function that creates the config file (rewarded) for the NWB conversion
+#############################################################################
 
 
 def files_to_config_Rewarded(mat_file, csv_file,output_folder="data"):
     """
     Converts a .mat file and csv_file into a .yaml configuration file for the NWB pipeline.
-
     :param mat_file: dictionary containing the data from the .mat file
+    :param output_folder: Path to the folder to save the config file
     :return: Configuration dictionary + path to the yaml file
     """
     related_publications = 'Oryshchuk A, Sourmpis C, Weverbergh J, Asri R, Esmaeili V, Modirshanechi A, Gerstner W, Petersen CCH, Crochet S. Distributed and specific encoding of sensory, motor, and decision information in the mouse neocortex during goal-directed behavior. Cell Rep. 2024 Jan 23;43(1):113618. doi: 10.1016/j.celrep.2023.113618. Epub 2023 Dec 26. PMID: 38150365.'
@@ -285,11 +289,16 @@ def Rewarded_or_not(mat_file, csv_file):
 
     return Rewarded
 
+#############################################################################
+# Function that creates the config file (non rewarded) for the NWB conversion
+#############################################################################
+
 def files_to_config_NonRewarded(mat_file, csv_file,output_folder="data"):
     """
     Converts a .mat file and csv_file into a .yaml configuration file for the NWB pipeline.
 
     :param mat_file: dictionary containing the data from the .mat file
+    :param output_folder: Path to the folder to save the config file
     :return: Configuration dictionary + path to the yaml file
     """
     related_publications = 'Oryshchuk A, Sourmpis C, Weverbergh J, Asri R, Esmaeili V, Modirshanechi A, Gerstner W, Petersen CCH, Crochet S. Distributed and specific encoding of sensory, motor, and decision information in the mouse neocortex during goal-directed behavior. Cell Rep. 2024 Jan 23;43(1):113618. doi: 10.1016/j.celrep.2023.113618. Epub 2023 Dec 26. PMID: 38150365.'
@@ -410,7 +419,7 @@ def files_to_config_NonRewarded(mat_file, csv_file,output_folder="data"):
             'pharmacology': 'na',
             'protocol': 'na',
             'related_publications': related_publications,
-            'session_description': "ephys" +" " + str(subject_info.get("Session Type", "Unknown").strip()) + ":" ,#+ " Acute extracellular recordings using NeuroNexus single-shank 32-channel probes. Bandpass filtered (0.3 Hz – 7.5 kHz), amplified and digitized at 30 kHz (CerePlex M32, Blackrock). Data recorded via CerePlex Direct system. DiI coating used for post hoc localization. Initial 5–10 strong-whisker stimulation trials excluded from analysis.",
+            'session_description': "ephys" +" " + str(subject_info.get("Session Type", "Unknown").strip()) + ":" + " Acute extracellular recordings using NeuroNexus single-shank 32-channel probes. Bandpass filtered (0.3 Hz – 7.5 kHz), amplified and digitized at 30 kHz (CerePlex M32, Blackrock). Data recorded via CerePlex Direct system. DiI coating used for post hoc localization. Initial 5–10 strong-whisker stimulation trials excluded from analysis.",
             'session_id': session_id,
             'session_start_time': session_start_time,
             'slices': "na", 

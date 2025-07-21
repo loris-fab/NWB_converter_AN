@@ -4,6 +4,10 @@ import numpy as np
 import h5py
 from pynwb.epoch import TimeIntervals   
 
+###############################################################
+# Functions for converting intervals to NWB format for AN sessions
+###############################################################
+
 def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
     """
     Add detailed trial information to the NWBFile for a rewarded whisker detection task.
@@ -97,21 +101,24 @@ def add_intervals_container_NonRewarded(nwb_file, data: dict, mat_file) -> None:
     CoilOnsets = np.asarray(data['CoilOnsets']).flatten()
     CoilOnsets_per_trial = []
     CoilOnsets_per_trial_tms = []
+    CoilOnsets_amplitude = []
     for i, t0 in enumerate(trial_onsets):
-        t1 = t0 + 1.0
+        t1 = t0 + 2.0
         indices = np.where((CoilOnsets >= t0) & (CoilOnsets < t1))[0]
         if len(indices) > 0:
             CoilOnsets_per_trial.append("whisker_trial")
             CoilOnsets_per_trial_tms.append(CoilOnsets[indices[0]])
+            CoilOnsets_amplitude.append(stim_amps[indices[0]])
         else:
             CoilOnsets_per_trial.append("auditory_trial")
             CoilOnsets_per_trial_tms.append(np.nan)
+            CoilOnsets_amplitude.append(0)
 
     # --- Per-trial CoilOnsets ---
     jaw_onsets_raw = np.asarray(data['JawOnsets_Tms']).flatten()
     jaw_onsets_raw_per_trial = []
     for i, t0 in enumerate(trial_onsets):
-        t1 = t0 + 1.0
+        t1 = t0 + 2.0
         indices = np.where((jaw_onsets_raw >= t0) & (jaw_onsets_raw < t1))[0]
         if len(indices) > 0:
             jaw_onsets_raw_per_trial.append(1)
@@ -123,7 +130,7 @@ def add_intervals_container_NonRewarded(nwb_file, data: dict, mat_file) -> None:
     ValveOnsets_per_trial = []
     ValveOnsets_per_trial_tms = []
     for i, t0 in enumerate(trial_onsets):
-        t1 = t0 + 1.0
+        t1 = t0 + 2.0
         indices = np.where((ValveOnsets_Tms >= t0) & (ValveOnsets_Tms < t1))[0]
         if len(indices) > 0:
             ValveOnsets_per_trial.append(1)
@@ -165,7 +172,7 @@ def add_intervals_container_NonRewarded(nwb_file, data: dict, mat_file) -> None:
             trial_type= CoilOnsets_per_trial[i],
             whisker_stim= 1 if CoilOnsets_per_trial[i] == "whisker_trial" else 0,
             whisker_stim_onset=float(CoilOnsets_per_trial_tms[i]),
-            whisker_stim_amplitude=float(stim_amps[i]),
+            whisker_stim_amplitude=float(CoilOnsets_amplitude[i]),
             jaw_dlc_licks= jaw_onsets_raw_per_trial[i],
             reward_available=ValveOnsets_per_trial[i],
             reward_available_onset=float(ValveOnsets_per_trial_tms[i]),

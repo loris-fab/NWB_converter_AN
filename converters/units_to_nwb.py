@@ -1,10 +1,9 @@
 
-
 import h5py
 import numpy as np
 from pynwb.misc import Units
 
-def add_units_container_Rewarded(nwb_file, data, electrode_table_region, mat_file , sampling_rate):
+def add_units_container(nwb_file, data, unique_values, mat_file , sampling_rate ,regions):
     """
     Add or complete the 'units' container in the NWB file using neuronal spike and metadata.
 
@@ -35,9 +34,6 @@ def add_units_container_Rewarded(nwb_file, data, electrode_table_region, mat_fil
 
     with h5py.File(mat_file, 'r') as f:
         n_units = data["spikets"].shape[0]
-
-
-
         # Add unit metadata columns
         nwb_file.add_unit_column("cluster_id", "cluster index, from KS(probe-wise)")
         nwb_file.add_unit_column("main_channel", "Most responsive electrode index")
@@ -58,7 +54,7 @@ def add_units_container_Rewarded(nwb_file, data, electrode_table_region, mat_fil
         nwb_file.add_unit_column("ccf_ap", "Allen CCF AP coordinate (um)")
         nwb_file.add_unit_column("ccf_dv", "Allen CCF DV coordinate (um)")
         nwb_file.add_unit_column("ccf_id", "ccf region ID")
-        nwb_file.add_unit_column("Target_area", "Localization target: mPFC (medial prefrontal cortex) or WS1 (whisker somatosensory area)")
+        nwb_file.add_unit_column("Target_area", "Localization target: mPFC (medial prefrontal cortex) or WS1 (whisker somatosensory area) or tjm1 (from the primary tongue and jaw motor area)")
         nwb_file.add_unit_column("ccf_name (full)", "Full brain area name")
         nwb_file.add_unit_column("ccf_name (acronym)", "Acronym of the brain area")
         nwb_file.add_unit_column("Type of neuron", "Neuron type: RSU (Regular Spiking Unit > 0.34 ms), FSU (Fast Spiking Unit < 0.26 ms), NoA (No assignment)")        
@@ -68,6 +64,7 @@ def add_units_container_Rewarded(nwb_file, data, electrode_table_region, mat_fil
 
         def get_str(ref):  # Convert HDF5 reference to string
             return ''.join(chr(c[0]) for c in f[ref][:])
+
 
         for i in range(n_units):
             # Spike times
@@ -81,13 +78,20 @@ def add_units_container_Rewarded(nwb_file, data, electrode_table_region, mat_fil
             if coords.size != 3:
                 print(f"Warning: Unit {i} has invalid CCF coords, skipping")
                 continue
-        
-            if get_str(data["Area"][i][0]) == "mPFC":
-                spike_main_channel = int(data["Spike_MainChannel"][i][0])
-            elif get_str(data["Area"][i][0]) == "wS1":
-                spike_main_channel = int(data["Spike_MainChannel"][i][0]) + 32
-            spike_main_channel = spike_main_channel - 1
-
+            
+            if np.sum(regions) == 2:
+                area_one, area_two = unique_values
+                if get_str(data["Area"][i][0]) == area_one:
+                    spike_main_channel = int(data["Spike_MainChannel"][i][0])
+                elif get_str(data["Area"][i][0]) == area_two:
+                    spike_main_channel = int(data["Spike_MainChannel"][i][0]) + 32
+                spike_main_channel = spike_main_channel - 1
+            elif np.sum(regions) == 1:
+                area_one = unique_values
+                spike_main_channel = int(data["Spike_MainChannel"][i][0]) - 1
+            else:
+                raise ValueError("Expected one or two unique areas, found: {}".format(np.sum(regions)))
+            
             # Other metadata
             baseline_vec = np.array(data["BaselineFR_Mean"][i][0])
             unit_info = {
@@ -125,3 +129,5 @@ def add_units_container_Rewarded(nwb_file, data, electrode_table_region, mat_fil
                 electrodes= [spike_main_channel],
                 **unit_info
             )
+
+
