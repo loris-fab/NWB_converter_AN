@@ -31,25 +31,17 @@ def add_units_container(nwb_file, data, unique_values, mat_file , sampling_rate 
 
     nwb_file.units = units_table
 
-
+    #Other info we don't have: Electrode Groupe NO, max-Channel , bc_cluster_id , useTheseTimesStart, useTheseTimesStop, percentageSpikesMissing_gaussian, percentageSpikesMissing_symmetric, presenceRatio, ks labels NO,nPeaks, nTroughs,spatialDecaySlope, waveformBaselineFlatness, rawAmplitude, signalToNoiseRatio,waveform_mean,pt_ratio,
     with h5py.File(mat_file, 'r') as f:
         n_units = data["spikets"].shape[0]
-        # Add unit metadata columns
         nwb_file.add_unit_column("cluster_id", "cluster index, from KS(probe-wise)")
         nwb_file.add_unit_column("main_channel", "Most responsive electrode index")
-        #Electrode Groupe NO
         nwb_file.add_unit_column("depth Histo", "Depth of the unit (um)")
-        #ks labels NO
         nwb_file.add_unit_column("firing_rate", "Mean firing-rate over trials (Hz)")
-        # max-Channel , bc_cluster_id , useTheseTimesStart, useTheseTimesStop, percentageSpikesMissing_gaussian, percentageSpikesMissing_symmetric, presenceRatio
         nwb_file.add_unit_column("nSpikes", "number of spikes")
-        # nPeaks, nTroughs
         nwb_file.add_unit_column("waveformDuration_peakTrough", "peak-to-trough template waveform duration, in ms")
-        # spatialDecaySlope, waveformBaselineFlatness, rawAmplitude, signalToNoiseRatio
         nwb_file.add_unit_column("fractionRPVs_estimatedTauR", "Percent of refractory period violations")
-        # waveform_mean,
         nwb_file.add_unit_column("sampling_rate", "Sampling rate used for that probe, in Hz")
-        # pt_ratio
         nwb_file.add_unit_column("ccf_ml", "Allen CCF ML coordinate (um)")
         nwb_file.add_unit_column("ccf_ap", "Allen CCF AP coordinate (um)")
         nwb_file.add_unit_column("ccf_dv", "Allen CCF DV coordinate (um)")
@@ -97,19 +89,12 @@ def add_units_container(nwb_file, data, unique_values, mat_file , sampling_rate 
             unit_info = {
                 "cluster_id": int(data["clusterID"][i][0]),
                 "main_channel": spike_main_channel,
-                #Electrode Groupe NO
                 "depth Histo": float(data["depthHisto"][i][0]/1000),
-                #ks labels NO
                 "firing_rate": float(np.mean(baseline_vec)),
-                # max-Channel , bc_cluster_id , useTheseTimesStart, useTheseTimesStop, percentageSpikesMissing_gaussian, percentageSpikesMissing_symmetric, presenceRatio
                 'nSpikes': nspikes,
-                # nPeaks, nTroughs
                 "waveformDuration_peakTrough": float(data["width"][i][0]),
-                # spatialDecaySlope, waveformBaselineFlatness, rawAmplitude, signalToNoiseRatio
                 "fractionRPVs_estimatedTauR": float(data["RP_Violation"][i][0]),
-                # waveform_mean,
                 'sampling_rate' : sampling_rate,
-                # pt_ratio
                 "ccf_ml": float(ml),
                 "ccf_ap": float(ap),
                 "ccf_dv": float(dv),

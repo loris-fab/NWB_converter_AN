@@ -356,7 +356,7 @@ def add_behavior_container_NonRewarded(nwb_file, data: dict, config_file: dict):
         data=stim_amps,
         timestamps=stim_timestamps,
         unit='code',
-        description='Timestamps marking the amplitude of whisker stimulation for each trial',
+        description='Timestamps marking the amplitude of whisker stimulation',
         comments='Whisker stimulation amplitudes are encoded as integers: 0 = no stimulus (Catch trial), 1 = 1.0°, 2 = 1.8°, 3 = 2.5°, 4 = 3.3° deflection of the C2 whisker.',
         rate = None,
     )
@@ -370,7 +370,7 @@ def add_behavior_container_NonRewarded(nwb_file, data: dict, config_file: dict):
         data=np.ones_like(jaw_onsets_raw), 
         unit='n.a.',
         timestamps=jaw_onsets_raw,
-        description='Timestamps marking the onset of jaw movements for each trial observed with DLC.',
+        description='Timestamps marking the onset of jaw movements observed with DLC.',
         comments='Encoded as 1 at each jaw onset timestamp.',
         rate=None,
     )
@@ -383,7 +383,7 @@ def add_behavior_container_NonRewarded(nwb_file, data: dict, config_file: dict):
         data=np.ones_like(PiezoLickOnset_Tms_CompleteLicks), 
         unit='n.a.',
         timestamps=PiezoLickOnset_Tms_CompleteLicks,
-        description='Timestamps marking the onset of piezoelectric sensor detected licks for each trial.',
+        description='Timestamps marking the onset of piezoelectric sensor detected licks.',
         comments='Encoded as 1 at each piezoelectric lick onset timestamp.',
         rate=None,
     )

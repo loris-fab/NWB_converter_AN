@@ -117,14 +117,17 @@ def add_intervals_container_NonRewarded(nwb_file, data: dict, mat_file) -> None:
     # --- Per-trial CoilOnsets ---
     jaw_onsets_raw = np.asarray(data['JawOnsets_Tms']).flatten()
     jaw_onsets_raw_per_trial = []
+    jaw_onsets_raw_per_trial_tms = []
     for i, t0 in enumerate(trial_onsets):
         t1 = t0 + 2.0
         indices = np.where((jaw_onsets_raw >= t0) & (jaw_onsets_raw < t1))[0]
         if len(indices) > 0:
             jaw_onsets_raw_per_trial.append(1)
+            jaw_onsets_raw_per_trial_tms.append(jaw_onsets_raw[indices[0]])
         else:
             jaw_onsets_raw_per_trial.append(0)
-    
+            jaw_onsets_raw_per_trial_tms.append(np.nan)
+
     # --- Per-trial ValveOnsets_Tms ---
     ValveOnsets_Tms = np.asarray(data['ValveOnsets_Tms']).flatten()
     ValveOnsets_per_trial = []
@@ -149,7 +152,8 @@ def add_intervals_container_NonRewarded(nwb_file, data: dict, mat_file) -> None:
         'reward_available': 'Whether reward could be earned (1 = yes)',
         'jaw_dlc_licks':  'Jaw movements for each trial observed with DLC',
         'reward_available': 'Whether reward could be earned (1 = yes) but not delivered necessarily at the trial start time',
-        'reward_available_onset': 'Valve onset times to deliver reward'
+        'reward_available_onset': 'Valve onset times to deliver reward',
+        'jaw_dlc_licks_onset': 'Jaw movements onset times observed with DLC'
     }
 
     # --- Add columns before inserting trials ---
@@ -176,4 +180,5 @@ def add_intervals_container_NonRewarded(nwb_file, data: dict, mat_file) -> None:
             jaw_dlc_licks= jaw_onsets_raw_per_trial[i],
             reward_available=ValveOnsets_per_trial[i],
             reward_available_onset=float(ValveOnsets_per_trial_tms[i]),
+            jaw_dlc_licks_onset=float(jaw_onsets_raw_per_trial_tms[i]),
         )

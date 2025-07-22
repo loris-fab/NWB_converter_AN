@@ -111,9 +111,6 @@ def add_general_container(nwb_file, data, mat_file, regions):
                     group = shank,
                 )
 
-        #nwb_file.electrodes.to_dataframe()
-        #display(nwb_file.electrodes.to_dataframe())
-
     if np.sum(regions) == 3:
         raise ValueError("This function currently supports only 2 regions (e.g., Shank1 and Shank2). Please check the regions provided in the data.")
 
@@ -163,9 +160,6 @@ def add_general_container(nwb_file, data, mat_file, regions):
                     #filtering="none",
                     group = shank_1,
                 )
-
-        #nwb_file.electrodes.to_dataframe()
-        #display(nwb_file.electrodes.to_dataframe())
 
     # ##############################################################
     # 3. Return region (useful for linking to ElectricalSeries)

@@ -54,7 +54,6 @@ def extract_lfp_signal(data, mat_file):
             ref = lfp_refs[i][0] if hasattr(lfp_refs[i], '__getitem__') else lfp_refs[i]
             mat = np.array(f[ref])
             if mat.ndim != 2:
-                print(f"Le bloc {i} est vide.")
                 if i == 0:
                     WS1 = False
                 elif i == 1:
@@ -67,6 +66,5 @@ def extract_lfp_signal(data, mat_file):
         if not blocks:
             raise ValueError("All blocks are empty. Cannot extract LFP signal.")
         full_array = np.concatenate(blocks, axis=0)
-        print(full_array.shape[0])
 
     return full_array.T , [WS1, mPFC, tjM1]  # Transpose to shape (T, 32 or 64 or 96)
