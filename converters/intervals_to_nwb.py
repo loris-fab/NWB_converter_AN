@@ -49,7 +49,7 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
         'trial_type': 'Whisker vs auditory trial',
         'whisker_stim': '1 if whisker stimulus delivered, else 0',
         'whisker_stim_amplitude': 'Amplitude of whisker stimulus',
-        'reward_available': 'Whether reward could be earned (1 = yes)',
+        #'reward_available': 'Whether reward could be earned (1 = yes)',
         #'response_window_start_time': 'Start of response window',
         'ResponseType': 'Trial outcome label (Hit, Miss, etc.)',
         #'lick_time': 'Timestamps of licks in trial',
@@ -73,10 +73,10 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
         nwb_file.add_trial(
             start_time=float(trial_onsets[i]),
             stop_time=float(trial_onsets[i]) + 1.0,
-            trial_type='whisker_trial' if stim_indices[i] else 'auditory_trial',
+            trial_type='whisker_trial' if stim_indices[i] else 'no_whisker_trial',
             whisker_stim=int(stim_indices[i]),
             whisker_stim_amplitude=float(stim_amps[i]),
-            reward_available=1,
+            #reward_available=1,
             #response_window_start_time=float(reaction_abs[i]),
             ResponseType=response_data[i],
             #lick_time=lick_time_per_trial[i]
@@ -110,7 +110,7 @@ def add_intervals_container_NonRewarded(nwb_file, data: dict, mat_file) -> None:
             CoilOnsets_per_trial_tms.append(CoilOnsets[indices[0]])
             CoilOnsets_amplitude.append(stim_amps[indices[0]])
         else:
-            CoilOnsets_per_trial.append("auditory_trial")
+            CoilOnsets_per_trial.append("no_whisker_trial")
             CoilOnsets_per_trial_tms.append(np.nan)
             CoilOnsets_amplitude.append(0)
 

@@ -46,7 +46,7 @@ def add_units_container(nwb_file, data, unique_values, mat_file , sampling_rate 
         nwb_file.add_unit_column("ccf_ap", "Allen CCF AP coordinate (um)")
         nwb_file.add_unit_column("ccf_dv", "Allen CCF DV coordinate (um)")
         nwb_file.add_unit_column("ccf_id", "ccf region ID")
-        nwb_file.add_unit_column("Target_area", "Localization target: mPFC (medial prefrontal cortex) or WS1 (whisker somatosensory area) or tjm1 (from the primary tongue and jaw motor area)")
+        nwb_file.add_unit_column("Target_area", "Localization target: mPFC (the medial prefrontal cortex : a higher-order area potentially involved in decision-making) or WS1 (whisker somatosensory area : the first cortical area involved in the processing of the whisker stimulus) or tjm1 (the primary tongue and jaw motor area : a motor area involved in the control of directional licking.)")
         nwb_file.add_unit_column("ccf_name (full)", "Full brain area name")
         nwb_file.add_unit_column("ccf_name (acronym)", "Acronym of the brain area")
         nwb_file.add_unit_column("Type of neuron", "Neuron type: RSU (Regular Spiking Unit > 0.34 ms), FSU (Fast Spiking Unit < 0.26 ms), NoA (No assignment)")        

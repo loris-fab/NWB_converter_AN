@@ -167,13 +167,16 @@ def files_to_config_Rewarded(mat_file, csv_file,output_folder="data"):
     #'wh_stim_weight': ?,
     #'aud_stim_weight': ?,
     #'camera_flag': ?,
+    'behavior type': 'Psychometric Whisker',
     'camera_freq': video_sr,
     #'camera_exposure_time': camera_exposure_time,
     'each_video_duration': video_duration,
     'camera_start_delay': camera_start_delay,
     #'artifact_window': ?,
-    'licence': str(subject_info.get("licence", "")).strip(),
+    'licence': str(subject_info.get("licence", "")).strip()+ " (All procedures were approved by the Swiss Federal Veterinary Office)",
     'ear tag': str(subject_info.get("Ear tag", "")).strip(),
+    'Software and algorithms' : "MATLAB R2021a, Kilosort2, Allen CCF tools , DeepLabCut 2.2b7 ",
+    'Ambient noise' : "80 dB",
 }
     ### Experimenter
     experimenter = "Anastasiia Oryshchuk"
@@ -223,17 +226,17 @@ def files_to_config_Rewarded(mat_file, csv_file,output_folder="data"):
             'institution': "Ecole Polytechnique Federale de Lausanne",
             'keywords': keywords,
             'lab' : "Laboratory of Sensory Processing",
-            'notes': 'na',
+            'notes': "Combining high-density extracellular electrophysiological recordings (from wS1, tjM1, mPFC) with high-speed videography of orofacial movements of mice performing a psychometric whisker sensory detection task reported by licking, Oryshchuk et al.",
             'pharmacology': 'na',
             'protocol': 'na',
             'related_publications': related_publications,
-            'session_description': "ephys" +" " + str(subject_info.get("Session Type", "Unknown").strip()) + ":" + " Acute extracellular recordings using NeuroNexus single-shank 32-channel probes. Bandpass filtered (0.3 Hz – 7.5 kHz), amplified and digitized at 30 kHz (CerePlex M32, Blackrock). Data recorded via CerePlex Direct system.",
+            'session_description': "ephys" +" " + str(subject_info.get("Session Type", "Unknown").strip()) + ":" " Whisker-rewarded (WR+) mice were trained to lick within 1 s following the whisker stimulus (go trials) but not in the absence of the stimulus (no-go trials). The neuronal representation of sensory, motor, and decision information was studied in a sensory, a motor, and a higher-order cortical area in these mice trained to lick for a water reward in response to a brief whisker stimulus.",
             'session_id': session_id,
             'session_start_time': session_start_time,
-            'slices': "na", 
+            'slices': "Allen CCF tools was used to register brain slices and probe locations to the Allen mouse brain atlas.", 
             'source_script': 'na',
             'source_script_file_name': 'na',
-            'stimulus_notes': 'Whisker stimulation was applied unilaterally to the C2 region to evoke sensory responses.',
+            'stimulus_notes': 'Whisker stimulation (a brief magnetic pulse of 1-ms acting upon a small metal particle) was applied unilaterally to the C2 region to evoke sensory responses. Stimulus trials included four whisker stimulus amplitudes of 1 , 1.8 , 2.5 , and 3.3 deflection of the right C2 whisker, also delivered with equal probabilities.',
             'surgery': 'na',
             'virus': 'na',
 
@@ -359,12 +362,15 @@ def files_to_config_NonRewarded(mat_file, csv_file,output_folder="data"):
     #'wh_stim_weight': ?,
     #'aud_stim_weight': ?,
     #'camera_flag': ?,
+    'behavior type': 'Psychometric Whisker',
     'camera_freq': video_sr,
     #'camera_exposure_time': camera_exposure_time,
     'total_video_duration': video_duration_total,
     #'artifact_window': ?,
-    'licence': str(subject_info.get("licence", "")).strip(),
+    'licence': str(subject_info.get("licence", "")).strip() + " (All procedures were approved by the Swiss Federal Veterinary Office)",
     'ear tag': str(subject_info.get("Ear tag", "")).strip(),
+    'Software and algorithms' : "MATLAB R2021a, Kilosort2, Allen CCF tools , DeepLabCut 2.2b7 ",
+    'Ambient noise' : "80 dB",
 }
     ### Experimenter
     experimenter = "Anastasiia Oryshchuk"
@@ -414,17 +420,17 @@ def files_to_config_NonRewarded(mat_file, csv_file,output_folder="data"):
             'institution': "Ecole Polytechnique Federale de Lausanne",
             'keywords': keywords,
             'lab' : "Laboratory of Sensory Processing",
-            'notes': 'na',
+            'notes': "Combining high-density extracellular electrophysiological recordings (from wS1, tjM1, mPFC) with high-speed videography of orofacial movements of mice performing a psychometric whisker sensory detection task reported by licking, Oryshchuk et al.",
             'pharmacology': 'na',
             'protocol': 'na',
             'related_publications': related_publications,
-            'session_description': "ephys" +" " + str(subject_info.get("Session Type", "Unknown").strip()) + ":" + " Acute extracellular recordings using NeuroNexus single-shank 32-channel probes. Bandpass filtered (0.3 Hz – 7.5 kHz), amplified and digitized at 30 kHz (CerePlex M32, Blackrock). Data recorded via CerePlex Direct system. DiI coating used for post hoc localization. Initial 5–10 strong-whisker stimulation trials excluded from analysis.",
+            'session_description': "ephys" +" " + str(subject_info.get("Session Type", "Unknown").strip()) + ":" + " Whisker non-rewarded (WR ) mice, the whisker stimulus was decorrelated to reward delivery. The neuronal representation of sensory, motor, and decision information was examined in mice exposed to brief whisker stimuli that did not predict reward availability, in sensory, motor, and higher-order cortical areas.",
             'session_id': session_id,
             'session_start_time': session_start_time,
-            'slices': "na", 
+            'slices': "Allen CCF tools was used to register brain slices and probe locations to the Allen mouse brain atlas.", 
             'source_script': 'na',
             'source_script_file_name': 'na',
-            'stimulus_notes': 'Random C2 whisker stimulation',
+            'stimulus_notes': 'C2 whisker stimulation (a brief magnetic pulse of 1-ms acting upon a small metal particle) occurred independently of trial timing and could happen at any moment. Stimulus trials included four whisker stimulus amplitudes of 1 , 1.8 , 2.5 , and 3.3 deflection of the right C2 whisker, also delivered with equal probabilities.',
             'surgery': 'na',
             'virus': 'na',
 
@@ -449,3 +455,5 @@ def files_to_config_NonRewarded(mat_file, csv_file,output_folder="data"):
     with open(output_path, 'w') as f:
         yaml.dump(config, f, default_flow_style=False)
     return output_path, config
+
+

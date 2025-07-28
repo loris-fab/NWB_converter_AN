@@ -39,7 +39,7 @@ def add_analysis_container(
     
     ana_mod = nwb_file.create_processing_module(
             name="analysis",
-            description="Secondary analyses: PSTH and mean LFP")
+            description="Secondary analyses: mean LFP and global LFP")
 
     #################
     ###   PSTH    ###

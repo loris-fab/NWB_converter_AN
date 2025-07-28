@@ -67,8 +67,8 @@ def convert_data_to_nwb_an(mat_file, output_folder,psth_window=(-0.2, 0.5), psth
     importlib.reload(converters.intervals_to_nwb)
     if Rewarded:
         converters.intervals_to_nwb.add_intervals_container_Rewarded(nwb_file=nwb_file, data=data, mat_file=mat_file)
-    else:
-        converters.intervals_to_nwb.add_intervals_container_NonRewarded(nwb_file=nwb_file, data=data, mat_file=mat_file)
+    #else:
+        #converters.intervals_to_nwb.add_intervals_container_NonRewarded(nwb_file=nwb_file, data=data, mat_file=mat_file)
 
     print("     o 🧠 Add units container")
     importlib.reload(converters.units_to_nwb)
