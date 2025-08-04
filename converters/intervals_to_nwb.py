@@ -46,7 +46,7 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
 
     # --- Define new trial columns ---
     new_columns = {
-        'trial_type': 'Whisker vs auditory trial',
+        'trial_type': 'Stimulus Whisker vs no stimulation trial',
         'whisker_stim': '1 if whisker stimulus delivered, else 0',
         'whisker_stim_amplitude': 'Amplitude of whisker stimulus',
         #'reward_available': 'Whether reward could be earned (1 = yes)',

@@ -18,7 +18,7 @@ Oryshchuk et al., *Distributed and specific encoding of sensory, motor, and deci
   - Time intervals (e.g., trials)
   - Units (e.g., spikes)
   - Behavioral data (licks, rewards…)
-  - Optional analysis containers (e.g., PSTHs)
+  - Optional analysis containers (e.g., LFPmean)
 - Validates the NWB file after conversion
 
 
@@ -49,16 +49,15 @@ NWB\_converter\_AN/
 
 ## 🚀 Usage
 
-Create environment :
+Create environment and Install dependencies with:
 ```bash
-conda create -n nwb_env python=3.9
-
-conda activate nwb_env
+conda env create -f environment.yml
 ```
 
-Install dependencies with:
-
+if it doesn't work try : 
 ```bash
+conda create -n nwb_env python=3.9
+conda activate nwb_env
 pip install -r requirement.txt
 ```
 
