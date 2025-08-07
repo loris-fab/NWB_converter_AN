@@ -13,7 +13,7 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
     Add detailed trial information to the NWBFile for a rewarded whisker detection task.
     """
 
-
+    duration = 2.0
     # --- Extract trial data ---
     trial_onsets = np.asarray(data['TrialOnsets_All']).flatten()
     stim_indices = np.asarray(data['StimIndices']).flatten().astype(int)
@@ -29,17 +29,17 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
     cr = np.asarray(data['CRIndices']).flatten().astype(bool)
     fa = np.asarray(data['FAIndices']).flatten().astype(bool)
 
-    response_data = np.full(n_trials, 'Unlabeled', dtype=object)
-    response_data[miss] = 'Miss'
-    response_data[hit] = 'Hit'
-    response_data[cr] = 'CR'
-    response_data[fa] = 'FA'
+    response_data = np.full(n_trials, np.nan, dtype=float)
+    response_data[miss] = 0.0  # Miss
+    response_data[hit] = 1.0   # Hit
+    response_data[cr] = 2.0    # CR
+    response_data[fa] = 3.0    # FA
 
     # --- Per-trial lick timestamps ---
     lick_ts_all = np.asarray(data['LickTime']).flatten()
     lick_time_per_trial = []
     for i, t0 in enumerate(trial_onsets):
-        t1 = t0 + 1.0
+        t1 = t0 + duration
         indices = np.where((lick_ts_all >= t0) & (lick_ts_all < t1))[0]
         licks = [lick_ts_all[j] for j in indices if not np.isnan(lick_ts_all[j])]
         lick_time_per_trial.append(np.array(licks))
@@ -49,10 +49,15 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
         'trial_type': 'Stimulus Whisker vs no stimulation trial',
         'whisker_stim': '1 if whisker stimulus delivered, else 0',
         'whisker_stim_amplitude': 'Amplitude of whisker stimulus',
-        #'reward_available': 'Whether reward could be earned (1 = yes)',
-        #'response_window_start_time': 'Start of response window',
-        'ResponseType': 'Trial outcome label (Hit, Miss, etc.)',
-        #'lick_time': 'Timestamps of licks in trial',
+        'whisker_stim_time': 'Whisker stimulus onset time',
+        'whisker_stim_duration': 'Duration of whisker stimulus (ms)',
+        'no_stim': '1 if no whisker stimulus delivered, else 0',
+        'no_stim_time': 'No whisker stimulus onset time',
+        'reward_available': 'Whether reward could be earned (1 = yes)',
+        'response_window_start_time': 'Start of response window',
+        'response_window_stop_time': 'Stop of response window',
+        'perf': 'Trial outcome label (0= whisker miss; 1= whisker hit ; 2= correct rejection ; 3= false alarm)',
+        #'lick_time': 'Whitin response window lick time. Absolute time (s) relative to session start time',
         'jaw_dlc_licks':  'Jaw movements for each trial observed with DLC'
     }
 
@@ -72,13 +77,18 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
     for i in range(n_trials):
         nwb_file.add_trial(
             start_time=float(trial_onsets[i]),
-            stop_time=float(trial_onsets[i]) + 1.0,
-            trial_type='whisker_trial' if stim_indices[i] else 'no_whisker_trial',
+            stop_time=float(trial_onsets[i]) + duration,
+            trial_type='whisker_trial' if stim_indices[i] else 'no_stim_trial',
             whisker_stim=int(stim_indices[i]),
             whisker_stim_amplitude=float(stim_amps[i]),
-            #reward_available=1,
-            #response_window_start_time=float(reaction_abs[i]),
-            ResponseType=response_data[i],
+            whisker_stim_time = float(trial_onsets[i]) if stim_indices[i] else np.nan,
+            whisker_stim_duration = "1 (ms)",
+            no_stim = 0 if stim_indices[i] else 1,
+            no_stim_time = np.nan if stim_indices[i] else float(trial_onsets[i]),
+            reward_available = 1,
+            response_window_start_time=float(reaction_abs[i]) + 0.05,
+            response_window_stop_time =float(reaction_abs[i]) + 1,
+            perf=response_data[i],
             #lick_time=lick_time_per_trial[i]
             jaw_dlc_licks=1 if jaw_onsets_raw[i] > 0 else 0,
         )

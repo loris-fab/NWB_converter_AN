@@ -41,14 +41,14 @@ def add_general_container(nwb_file, data, mat_file, regions):
     # ── Headstage (Blackrock) ───────────────────────────────────────────
     headstage = nwb_file.create_device(
         name="CerePlex M32",
-        description="Digital headstage used for 0.3 Hz–7.5 kHz amplification and 30 kHz digitization",
+        description="Digital headstage used for amplification and digitization (30 kHz) with band-pass filtering 0.3 Hz–7.5 kHz",
         manufacturer="Blackrock Microsystems, UT, USA"
     )
 
     # -- High speed camera ────────────────────────────────────────────
     camera = nwb_file.create_device(
         name="High speed camera",
-        description="CL 600 X 2/M",
+        description="camera CL 600 X 2/M for high-speed video filming (500 fps)",
         manufacturer="Optronis, Germany"
     )
 
@@ -62,6 +62,10 @@ def add_general_container(nwb_file, data, mat_file, regions):
     # ##############################################################
     # 2. Create Electrode Group and Add electrodes to the NWB file
     # ##############################################################
+
+    str_mPFC = "medial prefrontal cortex (mPFC):  insertion at AP=+2.0 mm, ML=-0.5 mm with a 10 deg ML angle relative to vertical."
+    str_wS1 = "C2 barrel column of whisker primary somatosensory cortex (wS1):  insertion with a 30 deg ML angle relative to vertical at location determined using intrinsic optical signal."
+    str_tjM1 = "tongue and jaw primary motor cortex (tjM1):  insertion at AP=+2.0 mm, ML=-2.0 mm with a 10 deg ML angle relative to vertical."
 
     if np.sum(regions) == 2:
         ml_dv_ap  = np.asarray(data.get("ML_DV_AP_32"))   
@@ -82,30 +86,36 @@ def add_general_container(nwb_file, data, mat_file, regions):
             assert shank_total.shape == (3, 64), "Expected shape of shank_total is (3, 64), got {}".format(shank_total.shape)
 
         if unique_values[0] == "mPFC":
-            info_reg = "(the medial prefrontal cortex : a higher-order area potentially involved in decision-making)"
+            info_reg1 = str_mPFC
         elif unique_values[0] == "tjM1":
-            info_reg = "(the primary tongue and jaw motor area : a motor area involved in the control of directional licking)"
-        elif unique_values[0] == "Ws1":
-            info_reg = "(the primary whisker sensory cortex: the first cortical area involved in the processing of the whisker stimulus)"
+            info_reg1 = str_tjM1
+        elif unique_values[0] == "wS1":
+            info_reg1 = str_wS1
+        else:
+            info_reg1 = ""
+            raise ValueError(f"Unexpected region name: {unique_values[0]}")
 
         if unique_values[1] == "mPFC":
-            info_reg = "(the medial prefrontal cortex : a higher-order area potentially involved in decision-making)"
+            info_reg2 = str_mPFC
         elif unique_values[1] == "tjM1":
-            info_reg = "(the primary tongue and jaw motor area : a motor area involved in the control of directional licking)"
-        elif unique_values[1] == "Ws1":
-            info_reg = "(the primary whisker sensory cortex: the first cortical area involved in the processing of the whisker stimulus)" 
-
+            info_reg2 = str_tjM1
+        elif unique_values[1] == "wS1":
+            info_reg2 = str_wS1
+        else:
+            info_reg2 = ""
+            raise ValueError(f"Unexpected region name: {unique_values[1]}")
+            
         # Create group for each shank
         shank_1 = nwb_file.create_electrode_group(
             name="Shank one",
             description="NeuroNexus A1x32 probe, Shank 1",
-            location="In the {} according to the Allen Brain Atlas".format(unique_values[0] + info_reg),
+            location="In the {} according to the Allen Brain Atlas".format(unique_values[0] + info_reg1),
             device=probe
         )
         shank_2 = nwb_file.create_electrode_group(
             name="Shank two",
             description="NeuroNexus A1x32 probe, Shank 2",
-            location="In the {} according to the Allen Brain Atlas".format(unique_values[1] + info_reg),
+            location="In the {} according to the Allen Brain Atlas".format(unique_values[1] + info_reg2),
             device=probe
         )
 
@@ -152,14 +162,18 @@ def add_general_container(nwb_file, data, mat_file, regions):
             assert shank_total.shape == (3, 32), "Expected shape of shank1 is (3, 32), got {}".format(shank_total.shape)
 
         if regions[0] == 1:
-            unique_values = "Ws1"
-            info_reg = "(the primary whisker sensory cortex: the first cortical area involved in the processing of the whisker stimulus)"
+            unique_values = "wS1"
+            info_reg = str_wS1
         elif regions[1] == 1:
             unique_values = "mPFC"
-            info_reg = "(the medial prefrontal cortex : a higher-order area potentially involved in decision-making)"
+            info_reg = str_mPFC
         elif regions[2] == 1:
             unique_values = "tjM1"
-            info_reg = "(the primary tongue and jaw motor area : a motor area involved in the control of directional licking)"
+            info_reg = str_tjM1
+        else:
+            unique_values = "Unknown"
+            info_reg = ""
+            raise ValueError(f"Unexpected region name: {unique_values}")
 
         # Create group for each shank
         shank_1 = nwb_file.create_electrode_group(

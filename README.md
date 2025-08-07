@@ -61,56 +61,46 @@ conda activate nwb_env
 pip install -r requirement.txt
 ```
 
-
-
-
-
 ## 🧩 How to use
-Run the following command in the terminal, replacing `path.mat` with the path to the `.mat` file provided by Anastasiia Oryshchuk, and `output_folder` with the directory where you want the NWB file to be saved.
+Run the following command in the terminal, replacing `input_folder` with the path to the folder containing Anastasiia Oryshchuk’s `.mat` files, and `output_folder` with the destination directory where you want the resulting NWB files to be saved.
 
 ```bash
-python convert_to_nwb_for_AO.py path.mat output_folder
+python convert_to_nwb_for_AO.py input_folder output_folder
 ```
 *Options:*
-
-* `--psth_window`: time window for PSTH (default: -0.2 0.5 seconds)
-* `--psth_bin`: bin width for PSTH (default: 0.010 seconds)
-
+* `--print_progress`: Print progress of conversion with more details
 
 If everything runs correctly, you should see an output similar to this:
 
-
 ```bash
+Conversion to NWB: 🔁 AO039_20190626.mat:  50%|███████████           | 1/2 [00:00<00:00,  7.01it/s]
 **************************************************************************
--_-_-_-_-_-_-_-_-_-_-_-_-_-_- NWB conversion _-_-_-_-_-_-_-_-_-_-_-_-_-_-_
-
-📃 Creating config file for NWB conversion:
-
-📑 Creating NWB file:
-ephys Whisker Rewarded: Acute extracellular recordings using NeuroNexus single-shank 32-channel probes. Bandpass filtered (0.3 Hz – 7.5 kHz), amplified and digitized at 30 kHz (CerePlex M32, Blackrock). Data recorded via CerePlex Direct system.
-
-     o 📌 Adding general metadata:
+ NWB conversion /Volumes/Petersen-Lab/z_LSENS/Share/Loris_Fabbro/AO/mat_files/AO039_20190626.mat
+ 
+📃 Creating config file for NWB conversion :
+📑 Created NWB file :
+ephys Whisker Rewarded: Whisker-rewarded (WR+) mice were trained to lick within 1 s following the whisker stimulus (go trials) but not in the absence of the stimulus (no-go trials). The neuronal representation of sensory, motor, and decision information was studied in a sensory, a motor, and a higher-order cortical area in these mice trained to lick for a water reward in response to a brief whisker stimulus.
+     o 📌 Add general metadata
          - Subject metadata
          - Session metadata
          - Device metadata
          - Extracellular electrophysiology metadata
-     o 📶 Add acquisition container
-     o ⏸️ Adding interval container  
-     o 🧠 Adding units container  
-     o ⚙️ Adding processing container:
-         - Behavioral data
-         - No electrophysiology data for AN sessions
-         - Complementary analysis information
-            > Added PSTH_mean_across_all_units to analysis module
-            > Added LFP_mean_across_all_units to analysis module
-            > Added global_LFP to analysis module
+     o ⏸️ Add intervall container
+     o 🧠 Add units container
+     o ⚙️ Add processing container
+         - Behavior data
+         - No ephys data for AN sessions
+ 
 🔎 Validating NWB file before saving...
      o ✅ File is valid, no errors detected.
-
-💾 Saving NWB file:
+ 
+💾 Saving NWB file
      o 📂 NWB file saved at:
-         - data/AO039_20190626_160524.nwb
+         - /Volumes/Petersen-Lab/z_LSENS/Share/Loris_Fabbro/AO/NWB_files/AO039_20190626_160524.nwb
 **************************************************************************
+Conversion to NWB is finished: 100%|████████████████████████████| 2/2 [00:59<00:00, 29.78s/it]
+⚠️ Conversion completed with errors for 1 files
+    - PL200_D1.mat: Unable to open file (file signature not found)
 ```
 
 
