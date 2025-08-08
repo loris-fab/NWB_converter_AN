@@ -71,7 +71,6 @@ def convert_data_to_nwb_an_mat(mat_file, output_folder):
     print("     o ⏸️ Add intervall container")
     importlib.reload(converters.intervals_to_nwb)
     if Rewarded:
-        u=0
         converters.intervals_to_nwb.add_intervals_container_Rewarded(nwb_file=nwb_file, data=data, mat_file=mat_file)
     else:
         converters.intervals_to_nwb.add_intervals_container_NonRewarded(nwb_file=nwb_file, data=data, mat_file=mat_file)
@@ -83,7 +82,6 @@ def convert_data_to_nwb_an_mat(mat_file, output_folder):
 
     print("     o ⚙️ Add processing container")
     importlib.reload(converters.behavior_to_nwb)
-    importlib.reload(converters.analysis_to_nwb)
     if Rewarded:
         print("         - Behavior data")
         converters.behavior_to_nwb.add_behavior_container_Rewarded(nwb_file=nwb_file, data=data, config=config_file)
@@ -92,8 +90,6 @@ def convert_data_to_nwb_an_mat(mat_file, output_folder):
         converters.behavior_to_nwb.add_behavior_container_NonRewarded(nwb_file=nwb_file, data=data, config_file=config_file)
 
     print("         - No ephys data for AN sessions")
-    #print("         - Analysis complementary information")
-    #converters.analysis_to_nwb.add_analysis_container(nwb_file=nwb_file, Rewarded=Rewarded, psth_window=psth_window, psth_bin=psth_bin) # almost same for rewarded and non-rewarded sessions
 
     importlib.reload(converters.nwb_saving)
     if Rewarded:
@@ -104,6 +100,7 @@ def convert_data_to_nwb_an_mat(mat_file, output_folder):
         output_folder = os.path.join(output_folder, "WR-")
         os.makedirs(output_folder, exist_ok=True)
         nwb_path = converters.nwb_saving.save_nwb_file(nwb_file=nwb_file, output_folder=output_folder)
+        
     print(" ")
     print("🔎 Validating NWB file before saving...")
     with NWBHDF5IO(nwb_path, 'r') as io:
