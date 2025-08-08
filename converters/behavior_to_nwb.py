@@ -61,12 +61,13 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
     # --- REACTION TIMES ---
     reaction_times = np.asarray(data['ReactionTimes']).flatten()
     reaction_timestamps = trial_onsets + reaction_times
-    binary_vector = (reaction_times > 0).astype(int)
+    reaction_timestamps2 = np.asarray([float(el) if el != trial_onsets[index] else 0 for index, el in enumerate(reaction_timestamps)], dtype=float)
+    reaction_timestamps2 = reaction_timestamps2[reaction_timestamps2 != 0]  
 
     ts_reaction = TimeSeries(
         name='ReactionTimes',
-        data=binary_vector,
-        timestamps=reaction_timestamps,
+        data=np.ones_like(reaction_timestamps2),
+        timestamps=reaction_timestamps2,
         unit='n.a.',
         description = "Timestamps of response-time defined as lick-onset occurring after trial onset.",
         comments = "Reaction time from PiezoLickSignal.",
@@ -227,7 +228,7 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
                 values, times = flatten_trace_with_timestamps(trace, video_onsets, video_sr)
 
                 if key == "WhiskerAngle":
-                    description = "Whisker angle traces aligned to video_onsets."
+                    description = "Whisker angle trace across aligned video_onsets."
                     comments = "the whisker angle is extracted from video filming using DeepLabCut 2.2b7 and is defined as the angle between the whisker shaft and the midline of the head."
                 elif key == "JawTrace":
                     description = "Jaw traces aligned to video_onsets."

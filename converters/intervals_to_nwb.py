@@ -20,6 +20,7 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
     stim_amps = np.asarray(data['StimAmps']).flatten()
     reaction_lat = np.asarray(data['ReactionTimes']).flatten()
     reaction_abs = trial_onsets + reaction_lat
+    reaction_abs = np.array([float(el) if el != trial_onsets[index] else np.nan for index, el in enumerate(reaction_abs)], dtype=float)
     n_trials = len(trial_onsets)
     jaw_onsets_raw = np.asarray(data['JawOnsetsTms']).flatten()
 
@@ -39,7 +40,7 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
     lick_flag[hit] = 1.0
     lick_flag[miss] = 0.0
     lick_flag[cr] = 0.0
-    lick_flag[fa] = 0.0
+    lick_flag[fa] = 1.0
 
     # --- Define new trial columns ---
     new_columns = {
