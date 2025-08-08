@@ -162,6 +162,7 @@ def convert_data_to_nwb_an(input_folder, output_folder,print_progress=False):
                 list_errors.append(str(e))
             if i == len(files):
                 pbar.set_description(f"Conversion to NWB is finished")
+            gc.collect() 
         if len(list_errors_files) > 0:
             print(f"⚠️ Conversion completed with errors for {len(list_errors_files)} files")
             for i, file in enumerate(list_errors_files):
