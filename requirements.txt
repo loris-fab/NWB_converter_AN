@@ -141,7 +141,6 @@ notebook_shim==0.2.4
 numba==0.60.0
 numcodecs==0.12.1
 numexpr==2.10.2
-numpy @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000gp/T/abs_a51i_mbs7m/croot/numpy_and_numpy_base_1708638620867/work/dist/numpy-1.26.4-cp39-cp39-macosx_11_0_arm64.whl#sha256=829e20a6c33ce51c1a93497d06cb4af22d84caa54a431ea062765da3134e5287
 nwbinspector==0.6.3
 nwbwidgets==0.7.0
 opencv-python==4.8.0.74
@@ -161,7 +160,6 @@ propcache==0.3.2
 psutil==7.0.0
 ptyprocess==0.7.0
 pure_eval==0.2.3
-py-cpuinfo @ file:///private/var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_1ai9qocl5v/croot/py-cpuinfo_1698068093370/work
 py2vega==0.6.1
 pycparser==2.22
 pycryptodomex==3.23.0
@@ -203,7 +201,6 @@ sniffio==1.3.1
 soupsieve==2.7
 stack-data==0.6.3
 sympy==1.14.0
-tables @ file:///private/var/folders/k1/30mswbxs7r1g6zwn8y4fyt500000gp/T/abs_b2h37objh4/croot/pytables_1705614846524/work
 tenacity==9.1.2
 tensorstore==0.1.69
 terminado==0.18.1
