@@ -66,5 +66,7 @@ def extract_lfp_signal(data, mat_file):
         if not blocks:
             raise ValueError("All blocks are empty. Cannot extract LFP signal.")
         full_array = np.concatenate(blocks, axis=0)
+        if full_array.T.shape[1] not in [32, 64, 96]:
+            raise ValueError(f"Unexpected number of channels: {full_array.T.shape[1]}")
 
     return full_array.T , [WS1, mPFC, tjM1]  # Transpose to shape (T, 32 or 64 or 96)
