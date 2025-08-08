@@ -65,8 +65,8 @@ def convert_data_to_nwb_an_mat(mat_file, output_folder):
     print("         - Device metadata")
     print("         - Extracellular electrophysiology metadata")
     
-    #print("     o 📶 Add acquisition container")
-    #converters.acquisition_to_nwb.add_lfp_acquisition(nwb_file=nwb_file, signal_array=signal, electrode_region=electrode_table_region) # same for rewarded and non-rewarded sessions  
+    print("     o 📶 Add acquisition container")
+    converters.acquisition_to_nwb.add_lfp_acquisition(nwb_file=nwb_file, signal_array=signal, electrode_region=electrode_table_region) # same for rewarded and non-rewarded sessions  
 
     print("     o ⏸️ Add intervall container")
     importlib.reload(converters.intervals_to_nwb)
@@ -96,8 +96,14 @@ def convert_data_to_nwb_an_mat(mat_file, output_folder):
     #converters.analysis_to_nwb.add_analysis_container(nwb_file=nwb_file, Rewarded=Rewarded, psth_window=psth_window, psth_bin=psth_bin) # almost same for rewarded and non-rewarded sessions
 
     importlib.reload(converters.nwb_saving)
-    nwb_path = converters.nwb_saving.save_nwb_file(nwb_file=nwb_file, output_folder=output_folder) # same for rewarded and non-rewarded sessions
-
+    if Rewarded:
+        output_folder = os.path.join(output_folder, "WR+")
+        os.makedirs(output_folder, exist_ok=True)
+        nwb_path = converters.nwb_saving.save_nwb_file(nwb_file=nwb_file, output_folder=output_folder)
+    else:
+        output_folder = os.path.join(output_folder, "WR-")
+        os.makedirs(output_folder, exist_ok=True)
+        nwb_path = converters.nwb_saving.save_nwb_file(nwb_file=nwb_file, output_folder=output_folder)
     print(" ")
     print("🔎 Validating NWB file before saving...")
     with NWBHDF5IO(nwb_path, 'r') as io:

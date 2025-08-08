@@ -38,7 +38,7 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
         unit='n.a.',
         timestamps=trial_onsets,
         description='Timestamps marking the onset of each trial.',
-        comments='Encoded as 1 at each trial onset timestamp & the trial duration is 1 seconds.',
+        comments='time start of each trial',
         rate = None,
     )
     behavior_events.add_timeseries(ts_trial)
@@ -68,8 +68,8 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
         data=binary_vector,
         timestamps=reaction_timestamps,
         unit='n.a.',
-        description = "Timestamps of reaction events defined as a lick occurring after trial onset.",
-        comments = "Encoded as 1 at time of reaction, 0 if no reaction occurred with the corresponding trial timestamp.",
+        description = "Timestamps of response-time defined as lick-onset occurring after trial onset.",
+        comments = "Reaction time from PiezoLickSignal.",
     )
     behavior_events.add_timeseries(ts_reaction)
 
@@ -77,12 +77,12 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
     engaged_trials = np.asarray(data['EngagedTrials']).flatten()
 
     ts_engagement = TimeSeries(
-        name='EngagementEvents',
+        name='EngagedTrials',
         data=engaged_trials,
         timestamps=reaction_timestamps,
         unit='n.a.',
-        description = "Engagement events indicated when the mouse was behaviorally engaged during a reaction event.",
-        comments = "Encoded as 1 at each engagement event timestamp. If no engagement occurred, the value is 0 at the corresponding trial timestamp.",
+        description = "Engagement trials indicate trials when the mouse was behaviorally engaged in the task.",
+        comments = "1 for engaged, 0 for disengaged trials.",
     )
     behavior_events.add_timeseries(ts_engagement)
 
@@ -95,7 +95,7 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
         unit='n.a.',
         timestamps=video_onsets,
         description='Timestamps marking the onset of each video recording.',
-        comments=f'Encoded as 1 at each video onset timestamp & the video duration is {each_video_duration} seconds.',
+        comments=f'time start of each video. Video duration is  {each_video_duration} seconds.',
     )
     behavior_events.add_timeseries(ts_video)
 
@@ -113,7 +113,7 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
         unit='n.a.',
         timestamps=jaw_onsets_filled,
         description='Timestamps marking the onset of jaw movements for each trial observed with DLC.',
-        comments='Encoded as 1 at each jaw onset timestamp. If no jaw movement occurred, the value is 0 at the corresponding trial timestamp.',
+        comments='reaction time from the jaw opening.',
         rate=None,
     )
     behavior_events.add_timeseries(jaw_series)
@@ -146,7 +146,7 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
         unit='code',
         timestamps=reaction_timestamps,
         description = "Response type for each trial",
-        comments='Integer-encoded trial responses: 0 = MISS, 1 = HIT, 2 = CR (Correct Rejection), 3 = FA (False Alarm), 4 = Unlabeled (no assigned response).',
+        comments='trial responses: 0 = MISS, 1 = HIT, 2 = CR (Correct Rejection), 3 = FA (False Alarm), 4 = Unlabeled (no assigned response).',
 
     )
 
@@ -159,12 +159,12 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
                 unit='n.a.',
                 timestamps=reaction_timestamps,
                 description=f"Timestamps for {name}",
-                comments=f"Encoded as 1 at each {name} event timestamp.",
+                comments=f"time of each {name} event.",
             )
             behavior_events.add_timeseries(ts)
 
-    add_event('auditory_hit_trial', hit)
-    add_event('auditory_miss_trial', miss)
+    add_event('whisker_hit_trial', hit)
+    add_event('whisker_miss_trial', miss)
     add_event('correct_rejection_trial', cr)
     add_event('false_alarm_trial', fa)
 
@@ -227,20 +227,20 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
                 values, times = flatten_trace_with_timestamps(trace, video_onsets, video_sr)
 
                 if key == "WhiskerAngle":
-                    description = "Whisker angle trace across aligned video_onsets."
-                    comments = "The whisker angle is defined as the angle between the whisker shaft and the midline of the brain (at rest), which separates the two cerebral hemispheres."
+                    description = "Whisker angle traces aligned to video_onsets."
+                    comments = "the whisker angle is extracted from video filming using DeepLabCut 2.2b7 and is defined as the angle between the whisker shaft and the midline of the head."
                 elif key == "JawTrace":
-                    description = "Jaw trace across aligned video_onsets."
-                    comments = "The jaw trace is defined as the vertical position of the jaw relative to the rest position."
+                    description = "Jaw traces aligned to video_onsets."
+                    comments = "the jaw trace is extracted from video filming using DeepLabCut 2.2b7 and is defined as the distance between the tip of the jaw and the resting (closed) position of the jaw (mm)."
                 elif key == "TongueTrace":
-                    description = "Tongue trace across aligned video_onsets."
-                    comments = "The tongue trace is defined as the vertical position of the tongue relative to the rest position. There are some nan because the tongue is not always visible."
+                    description = "Tongue traces aligned to video_onsets."
+                    comments = "the tongue trace is extracted from video filming using DeepLabCut 2.2b7 and is defined as the distance between the tip of the tongue and the resting (closed) position of the jaw (mm). NB: tongue trace is only defined when the tongue is visible (protruded) otherwise = NaN"
                 elif key == "NoseTopTrace":
-                    description = "Nose top trace across aligned video_onsets."
-                    comments = "The nose top trace is defined as the vertical position of the nose top relative to the rest position."
+                    description = "Nose top traces aligned to video_onsets."
+                    comments = "the nose top trace trace is extracted from video filming using DeepLabCut 2.2b7 and is defined as the position of the nose relative to the resting position from the top view video."
                 elif key == "NoseSideTrace":
-                    description = "Nose side trace across aligned video_onsets."
-                    comments = "The nose side trace is defined as the horizontal position of the nose side relative to the rest position."
+                    description = "Nose side traces aligned to video_onsets."
+                    comments = "the nose side trace trace is extracted from video filming using DeepLabCut 2.2b7 and is defined as the position of the nose relative to the resting position from the side view video."
                 
 
                 ts = TimeSeries(
@@ -260,12 +260,12 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
     lick_time = np.asarray(data["LickTime"]).flatten()
 
     lick_ts = TimeSeries(
-        name="LickTrace",
+        name="PiezoLickSignal",
         data=lick_data,
         unit='a.u.',
         timestamps=lick_time,
-        description="Lick signal over time ",
-        comments="Lick data is a binary signal where over 0 indicates a lick event.",
+        description="Lick signal over time (V, Sampling rate = 100 Hz)",
+        comments="PiezoLickSignal is the continuous electrical signal recorded from the piezo film attached to the water spout to detect when the mouse contacts the water spout with its tongue.",
     )
     behavior_ts.add_timeseries(lick_ts)
 

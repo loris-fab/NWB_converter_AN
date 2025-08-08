@@ -30,19 +30,16 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
     fa = np.asarray(data['FAIndices']).flatten().astype(bool)
 
     response_data = np.full(n_trials, np.nan, dtype=float)
+    lick_flag = response_data.copy()
     response_data[miss] = 0.0  # Miss
     response_data[hit] = 1.0   # Hit
     response_data[cr] = 2.0    # CR
     response_data[fa] = 3.0    # FA
 
-    # --- Per-trial lick timestamps ---
-    lick_ts_all = np.asarray(data['LickTime']).flatten()
-    lick_time_per_trial = []
-    for i, t0 in enumerate(trial_onsets):
-        t1 = t0 + duration
-        indices = np.where((lick_ts_all >= t0) & (lick_ts_all < t1))[0]
-        licks = [lick_ts_all[j] for j in indices if not np.isnan(lick_ts_all[j])]
-        lick_time_per_trial.append(np.array(licks))
+    lick_flag[hit] = 1.0
+    lick_flag[miss] = 0.0
+    lick_flag[cr] = 0.0
+    lick_flag[fa] = 0.0
 
     # --- Define new trial columns ---
     new_columns = {
@@ -57,8 +54,9 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
         'response_window_start_time': 'Start of response window',
         'response_window_stop_time': 'Stop of response window',
         'perf': 'Trial outcome label (0= whisker miss; 1= whisker hit ; 2= correct rejection ; 3= false alarm)',
-        #'lick_time': 'Whitin response window lick time. Absolute time (s) relative to session start time',
-        'jaw_dlc_licks':  'Jaw movements for each trial observed with DLC'
+        'lick_time': 'Whitin response window lick time. Absolute time (s) relative to session start time.',
+        'jaw_dlc_licks':  'Jaw movements for each trial observed with DLC',
+        'lick_flag': '1 if lick occurred within response window, else 0'
     }
 
     # --- Add columns before inserting trials ---
@@ -86,11 +84,12 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
             no_stim = 0 if stim_indices[i] else 1,
             no_stim_time = np.nan if stim_indices[i] else float(trial_onsets[i]),
             reward_available = 1,
-            response_window_start_time=float(reaction_abs[i]) + 0.05,
-            response_window_stop_time =float(reaction_abs[i]) + 1,
+            response_window_start_time=float(trial_onsets[i]) + 0.05,
+            response_window_stop_time =float(trial_onsets[i]) + 1,
             perf=response_data[i],
-            #lick_time=lick_time_per_trial[i]
+            lick_time=reaction_abs[i],
             jaw_dlc_licks=1 if jaw_onsets_raw[i] > 0 else 0,
+            lick_flag=lick_flag[i]
         )
 
 
