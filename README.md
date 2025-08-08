@@ -79,7 +79,7 @@ Conversion to NWB: 🔁 AO039_20190626.mat:  50%|██████████�
  
 📃 Creating config file for NWB conversion :
 📑 Created NWB file :
-ephys Whisker Rewarded: Whisker-rewarded (WR+) mice were trained to lick within 1 s following the whisker stimulus (go trials) but not in the absence of the stimulus (no-go trials). The neuronal representation of sensory, motor, and decision information was studied in a sensory, a motor, and a higher-order cortical area in these mice trained to lick for a water reward in response to a brief whisker stimulus.
+ephys Whisker Rewarded (WR+) mouse: The mouse was trained to lick within 1 s following a whisker stimulus (go trials) but not in the absence of the stimulus (no-go trials). High-density extracellular recordings were performed using Neuronexus A1x32-Poly2-10 mm-50 s-177 probes.
      o 📌 Add general metadata
          - Subject metadata
          - Session metadata
