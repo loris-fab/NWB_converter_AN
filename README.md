@@ -58,7 +58,7 @@ if it doesn't work try :
 ```bash
 conda create -n nwb_env python=3.9
 conda activate nwb_env
-pip install -r requirement.txt
+python -m pip install --upgrade pip wheel setuptools && pip install -r requirements.txt
 ```
 
 ## 🧩 How to use
