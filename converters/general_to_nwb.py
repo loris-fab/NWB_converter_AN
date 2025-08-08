@@ -109,13 +109,13 @@ def add_general_container(nwb_file, data, mat_file, regions):
         shank_1 = nwb_file.create_electrode_group(
             name="Shank one",
             description="NeuroNexus A1x32 probe, Shank 1",
-            location="In the {} according to the Allen Brain Atlas".format(unique_values[0] + info_reg1),
+            location="In the {} according to the Allen Brain Atlas".format(info_reg1),
             device=probe
         )
         shank_2 = nwb_file.create_electrode_group(
             name="Shank two",
             description="NeuroNexus A1x32 probe, Shank 2",
-            location="In the {} according to the Allen Brain Atlas".format(unique_values[1] + info_reg2),
+            location="In the {} according to the Allen Brain Atlas".format(info_reg2),
             device=probe
         )
 
@@ -179,7 +179,7 @@ def add_general_container(nwb_file, data, mat_file, regions):
         shank_1 = nwb_file.create_electrode_group(
             name="Shank one",
             description="NeuroNexus A1x32 probe, Shank 1",
-            location="In the {} according to the Allen Brain Atlas".format(unique_values + info_reg),
+            location="In the {} according to the Allen Brain Atlas".format(info_reg),
             device=probe
         )
 
