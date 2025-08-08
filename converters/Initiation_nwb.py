@@ -232,7 +232,7 @@ def files_to_config_Rewarded(mat_file, csv_file,output_folder="data"):
             'pharmacology': 'na',
             'protocol': 'na',
             'related_publications': related_publications,
-            'session_description': "ephys" + " " + str(subject_info.get("Session Type", "Unknown").strip()) + " (WR+) mouse" +":" " The mouse was trained to lick within 1 s following a whisker stimulus (go trials) but not in the absence of the stimulus (no-go trials). High-density extracellular recordings were performed from mPFC and wS1 using Neuronexus A1x32-Poly2-10 mm-50 s-177 probes",
+            'session_description': "ephys" + " " + str(subject_info.get("Session Type", "Unknown").strip()) + " (WR+) mouse" +":" " The mouse was trained to lick within 1 s following a whisker stimulus (go trials) but not in the absence of the stimulus (no-go trials). High-density extracellular recordings were performed using Neuronexus A1x32-Poly2-10 mm-50 s-177 probes",
             'session_id': session_id,
             'session_start_time': session_start_time,
             'slices': "Allen CCF tools was used to register brain slices and probe locations to the Allen mouse brain atlas.", 
