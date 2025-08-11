@@ -7,6 +7,7 @@ import sys
 import importlib
 import argparse
 import platform
+import numpy as np
 from tqdm import tqdm
 from pynwb import NWBHDF5IO, validate
 from contextlib import redirect_stdout
@@ -47,6 +48,8 @@ def convert_data_to_nwb_an_mat(mat_file, output_folder):
     importlib.reload(converters.Initiation_nwb)
     Rewarded = converters.Initiation_nwb.Rewarded_or_not(mat_file=data, csv_file=csv_file)
     if Rewarded:
+        if abs(np.max(data["TrialOnsets_All"] - data["VideoOnsets"])) < 1e-3:
+            data["VideoOnsets"] = data["TrialOnsets_All"]
         output_path, config_file = converters.Initiation_nwb.files_to_config_Rewarded(data,csv_file=csv_file, output_folder=output_folder)
     else:
         output_path, config_file = converters.Initiation_nwb.files_to_config_NonRewarded(data,csv_file=csv_file, output_folder=output_folder)

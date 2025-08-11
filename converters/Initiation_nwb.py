@@ -140,7 +140,7 @@ def files_to_config_Rewarded(mat_file, csv_file,output_folder="data"):
 
     # Check if all traces have the same number of frames and compute camera start delay and exposure time
     Frames_per_Video = data["JawTrace"].shape[1]
-    if data["JawTrace"].shape[1] == Frames_per_Video and data["NoseSideTrace"].shape[1] == Frames_per_Video and data["NoseTopTrace"].shape[1] == Frames_per_Video and data["WhiskerAngle"].shape[1] == Frames_per_Video and data["TongueTrace"].shape[1] == Frames_per_Video :
+    if data["JawTrace"].shape[1] == Frames_per_Video and data["NoseSideTrace"].shape[1] == Frames_per_Video and data["NoseTopTrace"].shape[1] == Frames_per_Video and data["WhiskerAngle"].shape[1] == Frames_per_Video and data["TongueTrace"].shape[1] == Frames_per_Video:
         pass
     else:
         error_message = "Inconsistent number of frames across traces."
@@ -348,7 +348,7 @@ def files_to_config_NonRewarded(mat_file, csv_file,output_folder="data"):
 
     # Check if all traces have the same number of frames and compute camera start delay and exposure time
     Frames_tot = data["JawTrace"].shape[1]
-    if data["JawTrace"].shape[1] == Frames_tot and data["NoseSideTrace"].shape[1] == Frames_tot and data["NoseTopTrace"].shape[1] == Frames_tot and data["WhiskerAngle"].shape[1] == Frames_tot and data["TongueTrace"].shape[1] == Frames_tot:
+    if data["JawTrace"].shape[1] == Frames_tot and data["WhiskerAngle"].shape[1] == Frames_tot and data["TongueTrace"].shape[1] == Frames_tot:
         pass
     else:
         error_message = "Inconsistent number of frames across traces."

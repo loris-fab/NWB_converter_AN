@@ -451,7 +451,7 @@ def add_behavior_container_NonRewarded(nwb_file, data: dict, config_file: dict):
             behavior_ts (BehavioralTimeSeries): NWB container to receive TimeSeries
         """
         # List of trace keys to add
-        trace_keys = ["JawTrace", "TongueTrace", "NoseTopTrace", "NoseSideTrace", "WhiskerAngle"]
+        trace_keys = ["JawTrace", "TongueTrace", "WhiskerAngle"]
 
         for key in trace_keys:
             if key in data:
