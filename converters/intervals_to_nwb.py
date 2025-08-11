@@ -97,73 +97,81 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
 
 def add_intervals_container_NonRewarded(nwb_file, data: dict, mat_file) -> None:
     """
-    Add detailed trial information to the NWBFile for a rewarded whisker detection task.
+    Add detailed trial (whisker stimulus) information to the NWBFile for a non rewarded whisker detection task.
     """
 
 
     # --- Extract trial data ---
-    trial_onsets = np.asarray(data['TrialOnsets_All']).flatten()
-    stim_amps = np.asarray(data['CoilAmps']).flatten()
+    trial_onsets = np.asarray(data['Perf'][0]).flatten()
+    duration = 2.0
+    stim_amps = np.asarray(data['Perf'][2]).flatten()
+    lick_flag = np.asarray(data['Perf'][3]).flatten()
+    lick_times = np.asarray(data['Perf'][4]).flatten()
+    perf = ["whisker miss" if el == 0 else "whisker hit" for el in lick_flag]
     n_trials = len(trial_onsets)
+    
+    if False:
+        """
+        # --- Per-trial CoilOnsets ---
+        CoilOnsets = np.asarray(data['CoilOnsets']).flatten()
+        CoilOnsets_per_trial = []
+        CoilOnsets_per_trial_tms = []
+        CoilOnsets_amplitude = []
+        for i, t0 in enumerate(trial_onsets):
+            t1 = t0 + 2.0
+            indices = np.where((CoilOnsets >= t0) & (CoilOnsets < t1))[0]
+            if len(indices) > 0:
+                CoilOnsets_per_trial.append("whisker_trial")
+                CoilOnsets_per_trial_tms.append(CoilOnsets[indices[0]])
+                CoilOnsets_amplitude.append(stim_amps[indices[0]])
+            else:
+                CoilOnsets_per_trial.append("no_whisker_trial")
+                CoilOnsets_per_trial_tms.append(np.nan)
+                CoilOnsets_amplitude.append(0)
 
+        # --- Per-trial CoilOnsets ---
+        jaw_onsets_raw = np.asarray(data['JawOnsets_Tms']).flatten()
+        jaw_onsets_raw_per_trial = []
+        jaw_onsets_raw_per_trial_tms = []
+        for i, t0 in enumerate(trial_onsets):
+            t1 = t0 + 2.0
+            indices = np.where((jaw_onsets_raw >= t0) & (jaw_onsets_raw < t1))[0]
+            if len(indices) > 0:
+                jaw_onsets_raw_per_trial.append(1)
+                jaw_onsets_raw_per_trial_tms.append(jaw_onsets_raw[indices[0]])
+            else:
+                jaw_onsets_raw_per_trial.append(0)
+                jaw_onsets_raw_per_trial_tms.append(np.nan)
 
-    # --- Per-trial CoilOnsets ---
-    CoilOnsets = np.asarray(data['CoilOnsets']).flatten()
-    CoilOnsets_per_trial = []
-    CoilOnsets_per_trial_tms = []
-    CoilOnsets_amplitude = []
-    for i, t0 in enumerate(trial_onsets):
-        t1 = t0 + 2.0
-        indices = np.where((CoilOnsets >= t0) & (CoilOnsets < t1))[0]
-        if len(indices) > 0:
-            CoilOnsets_per_trial.append("whisker_trial")
-            CoilOnsets_per_trial_tms.append(CoilOnsets[indices[0]])
-            CoilOnsets_amplitude.append(stim_amps[indices[0]])
-        else:
-            CoilOnsets_per_trial.append("no_whisker_trial")
-            CoilOnsets_per_trial_tms.append(np.nan)
-            CoilOnsets_amplitude.append(0)
-
-    # --- Per-trial CoilOnsets ---
-    jaw_onsets_raw = np.asarray(data['JawOnsets_Tms']).flatten()
-    jaw_onsets_raw_per_trial = []
-    jaw_onsets_raw_per_trial_tms = []
-    for i, t0 in enumerate(trial_onsets):
-        t1 = t0 + 2.0
-        indices = np.where((jaw_onsets_raw >= t0) & (jaw_onsets_raw < t1))[0]
-        if len(indices) > 0:
-            jaw_onsets_raw_per_trial.append(1)
-            jaw_onsets_raw_per_trial_tms.append(jaw_onsets_raw[indices[0]])
-        else:
-            jaw_onsets_raw_per_trial.append(0)
-            jaw_onsets_raw_per_trial_tms.append(np.nan)
-
-    # --- Per-trial ValveOnsets_Tms ---
-    ValveOnsets_Tms = np.asarray(data['ValveOnsets_Tms']).flatten()
-    ValveOnsets_per_trial = []
-    ValveOnsets_per_trial_tms = []
-    for i, t0 in enumerate(trial_onsets):
-        t1 = t0 + 2.0
-        indices = np.where((ValveOnsets_Tms >= t0) & (ValveOnsets_Tms < t1))[0]
-        if len(indices) > 0:
-            ValveOnsets_per_trial.append(1)
-            ValveOnsets_per_trial_tms.append(ValveOnsets_Tms[indices[0]])
-        else:
-            ValveOnsets_per_trial.append(0)
-            ValveOnsets_per_trial_tms.append(np.nan)
-
+        # --- Per-trial ValveOnsets_Tms ---
+        ValveOnsets_Tms = np.asarray(data['ValveOnsets_Tms']).flatten()
+        ValveOnsets_per_trial = []
+        ValveOnsets_per_trial_tms = []
+        for i, t0 in enumerate(trial_onsets):
+            t1 = t0 + 2.0
+            indices = np.where((ValveOnsets_Tms >= t0) & (ValveOnsets_Tms < t1))[0]
+            if len(indices) > 0:
+                ValveOnsets_per_trial.append(1)
+                ValveOnsets_per_trial_tms.append(ValveOnsets_Tms[indices[0]])
+            else:
+                ValveOnsets_per_trial.append(0)
+                ValveOnsets_per_trial_tms.append(np.nan)
+        """
+        pass
 
     # --- Define new trial columns ---
     new_columns = {
-        'trial_type': 'Whisker vs auditory trial',
-        'whisker_stim': '1 if whisker stimulus delivered, else 0 but not delivered necessarily at the trial start time',
-        'whisker_stim_onset': 'Whisker stimulus onset times',
+        'trial_type': 'whisker_trial is when the whisker stimulus is presented',
+        'perf': 'Performance of the trial (whisker hit or miss)',
+        'whisker_stim': '1 because the whisker stimulus is presented',
         'whisker_stim_amplitude': 'Amplitude of whisker stimulus',
-        'reward_available': 'Whether reward could be earned (1 = yes)',
-        'jaw_dlc_licks':  'Jaw movements for each trial observed with DLC',
-        'reward_available': 'Whether reward could be earned (1 = yes) but not delivered necessarily at the trial start time',
-        'reward_available_onset': 'Valve onset times to deliver reward',
-        'jaw_dlc_licks_onset': 'Jaw movements onset times observed with DLC'
+        'whisker_stim_duration' : 'Duration of whisker stimulus',
+        'whisker_stim_time' : 'Time of whisker stimulus presentation',
+        'reward_available': '0 because no reward is available',
+        "response_window_start_time": 'Start time of the response window',
+        "response_window_stop_time": 'Stop time of the response window',
+        'lick_flag': '1 if lick occurred within response window, else 0',
+        'lick_time': 'Lick time within response window. Absolute time (s) relative to session start time.',
     }
 
     # --- Add columns before inserting trials ---
@@ -182,13 +190,16 @@ def add_intervals_container_NonRewarded(nwb_file, data: dict, mat_file) -> None:
     for i in range(n_trials):
         nwb_file.add_trial(
             start_time=float(trial_onsets[i]),
-            stop_time=float(trial_onsets[i]) + 2.0,
-            trial_type= CoilOnsets_per_trial[i],
-            whisker_stim= 1 if CoilOnsets_per_trial[i] == "whisker_trial" else 0,
-            whisker_stim_onset=float(CoilOnsets_per_trial_tms[i]),
-            whisker_stim_amplitude=float(CoilOnsets_amplitude[i]),
-            jaw_dlc_licks= jaw_onsets_raw_per_trial[i],
-            reward_available=ValveOnsets_per_trial[i],
-            reward_available_onset=float(ValveOnsets_per_trial_tms[i]),
-            jaw_dlc_licks_onset=float(jaw_onsets_raw_per_trial_tms[i]),
+            stop_time=float(trial_onsets[i]) + duration,
+            trial_type= "whisker_trial",
+            perf= perf[i],
+            whisker_stim= 1,
+            whisker_stim_amplitude=float(stim_amps[i]),
+            whisker_stim_duration= str("1 (ms)"),
+            whisker_stim_time=float(trial_onsets[i]),
+            reward_available=0,
+            response_window_start_time=float(trial_onsets[i])+ 0.05,
+            response_window_stop_time=float(trial_onsets[i]) + 1.0,
+            lick_flag=float(lick_flag[i]),
+            lick_time=float(lick_times[i]),
         )

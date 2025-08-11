@@ -94,12 +94,10 @@ def convert_data_to_nwb_an_mat(mat_file, output_folder):
     importlib.reload(converters.nwb_saving)
     if Rewarded:
         output_folder = os.path.join(output_folder, "WR+")
-        os.makedirs(output_folder, exist_ok=True)
-        nwb_path = converters.nwb_saving.save_nwb_file(nwb_file=nwb_file, output_folder=output_folder)
     else:
         output_folder = os.path.join(output_folder, "WR-")
-        os.makedirs(output_folder, exist_ok=True)
-        nwb_path = converters.nwb_saving.save_nwb_file(nwb_file=nwb_file, output_folder=output_folder)
+    os.makedirs(output_folder, exist_ok=True)
+    nwb_path = converters.nwb_saving.save_nwb_file(nwb_file=nwb_file, output_folder=output_folder)
         
     print(" ")
     print("🔎 Validating NWB file before saving...")

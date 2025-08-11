@@ -151,7 +151,10 @@ def files_to_config_Rewarded(mat_file, csv_file,output_folder="data"):
     elif np.all(data["VideoOnsets"] < data["TrialOnsets_All"]):
         camera_start_delay = float(np.mean(data["TrialOnsets_All"] - data["VideoOnsets"]))
     else:
-        error_message = "Problem with VideoOnsets and TrialOnsets_All timing."
+        camera_start_delay = float(np.mean(data["TrialOnsets_All"] - data["VideoOnsets"]))
+        camera_min_delay = float(np.min(data["TrialOnsets_All"] - data["VideoOnsets"]))
+        camera_max_delay = float(np.max(data["TrialOnsets_All"] - data["VideoOnsets"]))
+        error_message = f"Problem with VideoOnsets and TrialOnsets_All timing. The camera start delay is {camera_start_delay}, min delay is {camera_min_delay}, and max delay is {camera_max_delay}."
         camera_start_delay = "Unknown"
         raise ValueError(error_message)
 
@@ -355,21 +358,23 @@ def files_to_config_NonRewarded(mat_file, csv_file,output_folder="data"):
     video_duration_total = Frames_tot / video_sr
 
     experiment_description = {
-    'reference_weight': ref_weight,
-    #'wh_reward': ?,
+    'reference_weight': str(ref_weight) + " g",
+    'wh_reward': 0,
     #'aud_reward': ?,
-    #'reward_proba': ?,
+    'reward_proba': 0,
+    'wh_stim_amps': '0=0 deg, 1=1 deg, 2=1.8 deg, 3=2.5 deg and 4=3.3 deg',
     #'lick_threshold': ?,
     #'no_stim_weight': ?,
     #'wh_stim_weight': ?,
     #'aud_stim_weight': ?,
     #'camera_flag': ?,
-    'behavior type': 'Psychometric Whisker',
+    'session_type': 'ephys_session',
+    'behavior type': 'Psychometric whisker non-rewarded (WR-)',
     'camera_freq': video_sr,
     #'camera_exposure_time': camera_exposure_time,
     'total_video_duration': video_duration_total,
     #'artifact_window': ?,
-    'licence': str(subject_info.get("licence", "")).strip() + " (All procedures were approved by the Swiss Federal Veterinary Office)",
+    'licence': "VD-" + str(subject_info.get("licence", "")).strip(),
     'ear tag': str(subject_info.get("Ear tag", "")).strip(),
     'Software and algorithms' : "MATLAB R2021a, Kilosort2, Allen CCF tools , DeepLabCut 2.2b7 ",
     'Ambient noise' : "80 dB",
@@ -422,11 +427,11 @@ def files_to_config_NonRewarded(mat_file, csv_file,output_folder="data"):
             'institution': "Ecole Polytechnique Federale de Lausanne",
             'keywords': keywords,
             'lab' : "Laboratory of Sensory Processing",
-            'notes': "Combining high-density extracellular electrophysiological recordings (from wS1, tjM1, mPFC) with high-speed videography of orofacial movements of mice performing a psychometric whisker sensory detection task reported by licking, Oryshchuk et al.",
+            'notes': "Combination of high-density extracellular electrophysiological recordings (from wS1, tjM1, mPFC) with high-speed videography of orofacial movements of mice performing a Free-licking task and exposed to whisker stimuli of different amplitudes.",
             'pharmacology': 'na',
             'protocol': 'na',
             'related_publications': related_publications,
-            'session_description': "ephys" +" " + str(subject_info.get("Session Type", "Unknown").strip()) + ":" + " Whisker non-rewarded (WR ) mice, the whisker stimulus was decorrelated to reward delivery. The neuronal representation of sensory, motor, and decision information was examined in mice exposed to brief whisker stimuli that did not predict reward availability, in sensory, motor, and higher-order cortical areas.",
+            'session_description': "ephys" +" " + str(subject_info.get("Session Type", "Unknown").strip()) + " (WR-) mouse:" + " the mouse was rewarded by licking randomly (Free-licking) and exposed to brief whisker stimuli that did not predict reward availability. High-density extracellular recordings were performed using Neuronexus A1x32-Poly2-10 mm-50 s-177 probes",
             'session_id': session_id,
             'session_start_time': session_start_time,
             'slices': "Allen CCF tools was used to register brain slices and probe locations to the Allen mouse brain atlas.", 
