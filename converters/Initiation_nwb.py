@@ -151,10 +151,7 @@ def files_to_config_Rewarded(mat_file, csv_file,output_folder="data"):
     elif np.all(data["VideoOnsets"] < data["TrialOnsets_All"]):
         camera_start_delay = float(np.mean(data["TrialOnsets_All"] - data["VideoOnsets"]))
     else:
-        camera_start_delay = float(np.mean(data["TrialOnsets_All"] - data["VideoOnsets"]))
-        camera_min_delay = float(np.min(data["TrialOnsets_All"] - data["VideoOnsets"]))
-        camera_max_delay = float(np.max(data["TrialOnsets_All"] - data["VideoOnsets"]))
-        error_message = f"Problem with VideoOnsets and TrialOnsets_All timing. The camera start delay is {camera_start_delay}, min delay is {camera_min_delay}, and max delay is {camera_max_delay}."
+        error_message = f"Problem with VideoOnsets and TrialOnsets_All timing."
         camera_start_delay = "Unknown"
         raise ValueError(error_message)
 

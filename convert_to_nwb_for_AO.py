@@ -31,8 +31,6 @@ def convert_data_to_nwb_an_mat(mat_file, output_folder):
     Converts data from a config file to an NWB file.
     :param config_file: Path to the yaml config file containing mouse ID and metadata for the session to convert
     :param output_folder: Path to the folder to save NWB files
-    :param psth_window: Tuple of two floats representing the start and end of the PSTH and LFP window in seconds
-    :param psth_bin: Float representing the bin size for PSTH and LFP in seconds
     """
     csv_file = "Subject_Session_Selection.csv"
 
