@@ -80,7 +80,7 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
     ts_engagement = TimeSeries(
         name='EngagedTrials',
         data=engaged_trials,
-        timestamps=reaction_timestamps,
+        timestamps=trial_onsets,
         unit='n.a.',
         description = "Engagement trials indicate trials when the mouse was behaviorally engaged in the task.",
         comments = "1 for engaged, 0 for disengaged trials.",
@@ -145,7 +145,7 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
         name='ResponseType',
         data=response_data,
         unit='code',
-        timestamps=reaction_timestamps,
+        timestamps=trial_onsets,
         description = "Response type for each trial",
         comments='trial responses: 0 = MISS, 1 = HIT, 2 = CR (Correct Rejection), 3 = FA (False Alarm), 4 = Unlabeled (no assigned response).',
 
@@ -158,7 +158,7 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
                 name=name,
                 data=mask.astype(int),
                 unit='n.a.',
-                timestamps=reaction_timestamps,
+                timestamps=trial_onsets,
                 description=f"Timestamps for {name}",
                 comments=f"time of each {name} event.",
             )
