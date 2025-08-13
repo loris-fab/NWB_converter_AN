@@ -391,24 +391,24 @@ def add_behavior_container_NonRewarded(nwb_file, data: dict, config_file: dict):
     behavior_events.add_timeseries(lick_series)
 
     #--- "whisker_hit_trial" ---
-    timestamps_hit = [el for index , el in enumerate(trial_onsets) if lick_flag[index] == 1]
+    #timestamps_hit = [el for index , el in enumerate(trial_onsets) if lick_flag[index] == 1]
     ts_whisker_hit = TimeSeries(
         name='whisker_hit_trial',
-        data=np.ones_like(timestamps_hit),
+        data= lick_flag,     #np.ones_like(timestamps_hit),
         unit='n.a.',
-        timestamps=timestamps_hit,
+        timestamps= trial_onsets , #timestamps_hit,
         description='Timestamps for whisker_hit_trial',
         comments='time of each whisker_hit_trial event.',
     )
     behavior_events.add_timeseries(ts_whisker_hit)
 
     #--- "whisker_miss_trial" ---
-    timestamps_miss = [el for index , el in enumerate(trial_onsets) if lick_flag[index] == 0]
+    #timestamps_miss = [el for index , el in enumerate(trial_onsets) if lick_flag[index] == 0]
     ts_whisker_miss = TimeSeries(
         name='whisker_miss_trial',
-        data=np.ones_like(timestamps_miss),
+        data= 1 - lick_flag, #np.ones_like(timestamps_miss),
         unit='n.a.',
-        timestamps=timestamps_miss,
+        timestamps=trial_onsets,#timestamps_miss,
         description='Timestamps for whisker_miss_trial',
         comments='time of each whisker_miss_trial event.',
     )
