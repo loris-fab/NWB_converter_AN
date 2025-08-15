@@ -109,55 +109,6 @@ def add_intervals_container_NonRewarded(nwb_file, data: dict, mat_file) -> None:
     lick_times = np.asarray(data['Perf'][4]).flatten()
     perf = ["whisker miss" if el == 0 else "whisker hit" for el in lick_flag]
     n_trials = len(trial_onsets)
-    
-    if False:
-        """
-        # --- Per-trial CoilOnsets ---
-        CoilOnsets = np.asarray(data['CoilOnsets']).flatten()
-        CoilOnsets_per_trial = []
-        CoilOnsets_per_trial_tms = []
-        CoilOnsets_amplitude = []
-        for i, t0 in enumerate(trial_onsets):
-            t1 = t0 + 2.0
-            indices = np.where((CoilOnsets >= t0) & (CoilOnsets < t1))[0]
-            if len(indices) > 0:
-                CoilOnsets_per_trial.append("whisker_trial")
-                CoilOnsets_per_trial_tms.append(CoilOnsets[indices[0]])
-                CoilOnsets_amplitude.append(stim_amps[indices[0]])
-            else:
-                CoilOnsets_per_trial.append("no_whisker_trial")
-                CoilOnsets_per_trial_tms.append(np.nan)
-                CoilOnsets_amplitude.append(0)
-
-        # --- Per-trial CoilOnsets ---
-        jaw_onsets_raw = np.asarray(data['JawOnsets_Tms']).flatten()
-        jaw_onsets_raw_per_trial = []
-        jaw_onsets_raw_per_trial_tms = []
-        for i, t0 in enumerate(trial_onsets):
-            t1 = t0 + 2.0
-            indices = np.where((jaw_onsets_raw >= t0) & (jaw_onsets_raw < t1))[0]
-            if len(indices) > 0:
-                jaw_onsets_raw_per_trial.append(1)
-                jaw_onsets_raw_per_trial_tms.append(jaw_onsets_raw[indices[0]])
-            else:
-                jaw_onsets_raw_per_trial.append(0)
-                jaw_onsets_raw_per_trial_tms.append(np.nan)
-
-        # --- Per-trial ValveOnsets_Tms ---
-        ValveOnsets_Tms = np.asarray(data['ValveOnsets_Tms']).flatten()
-        ValveOnsets_per_trial = []
-        ValveOnsets_per_trial_tms = []
-        for i, t0 in enumerate(trial_onsets):
-            t1 = t0 + 2.0
-            indices = np.where((ValveOnsets_Tms >= t0) & (ValveOnsets_Tms < t1))[0]
-            if len(indices) > 0:
-                ValveOnsets_per_trial.append(1)
-                ValveOnsets_per_trial_tms.append(ValveOnsets_Tms[indices[0]])
-            else:
-                ValveOnsets_per_trial.append(0)
-                ValveOnsets_per_trial_tms.append(np.nan)
-        """
-        pass
 
     # --- Define new trial columns ---
     new_columns = {

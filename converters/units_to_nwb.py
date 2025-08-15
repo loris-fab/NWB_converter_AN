@@ -17,6 +17,10 @@ def add_units_container(nwb_file, data, unique_values, mat_file , sampling_rate 
         A region referencing all electrodes (64).
     mat_file : str
         Path to the .mat file for dereferencing MATLAB cell arrays.
+    sampling_rate : int
+        The sampling rate used for the recordings (in Hz).
+    regions : list
+        List of brain regions where the units were recorded.
     """
 
         

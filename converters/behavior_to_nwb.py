@@ -130,7 +130,7 @@ def add_behavior_container_Rewarded(nwb_file, data: dict,config: dict):
     n_trials = len(hit)
     response_labels = np.full(n_trials, 'Unlabeled', dtype=object)  # valeur par défaut
 
-    # Attribution avec priorité : FA < CR < MISS < HIT
+
     response_labels[fa] = 'FA'
     response_labels[cr] = 'CR'
     response_labels[miss] = 'MISS'

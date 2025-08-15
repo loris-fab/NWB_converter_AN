@@ -97,6 +97,7 @@ def files_to_config_Rewarded(mat_file, csv_file,output_folder="data"):
     """
     Converts a .mat file and csv_file into a .yaml configuration file for the NWB pipeline.
     :param mat_file: dictionary containing the data from the .mat file
+    :param csv_file: Path to the CSV file
     :param output_folder: Path to the folder to save the config file
     :return: Configuration dictionary + path to the yaml file
     """

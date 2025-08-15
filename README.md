@@ -38,7 +38,6 @@ NWB\_converter\_AN/
 │   ├── units\_to\_nwb.py
 │   ├── Initiation\_nwb.py
 │   └── nwb\_saving.py
-│
 ├── Subject\_Session\_Selection.csv 
 ├── requirement.txt
 ├── convert\_to\_nwb\_for\_AO.py  ← Main conversion script
@@ -48,18 +47,7 @@ NWB\_converter\_AN/
 ---
 
 ## 🚀 Usage
-
-Create environment and Install dependencies with:
-```bash
-conda env create -f environment.yml
-```
-
-if it doesn't work try : 
-```bash
-conda create -n nwb_env python=3.9
-conda activate nwb_env
-python -m pip install --upgrade pip wheel setuptools && pip install -r requirements.txt
-```
+Follow the environment setup instructions provided in [LSENS-Lab-Immersion repository](https://github.com/loris-fab/LSENS-Lab-Immersion.git), and include the link to it.
 
 ## 🧩 How to use
 Run the following command in the terminal, replacing `input_folder` with the path to the folder containing Anastasiia Oryshchuk’s `.mat` files, and `output_folder` with the destination directory where you want the resulting NWB files to be saved.
