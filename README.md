@@ -31,7 +31,6 @@ NWB\_converter\_AN/
 │
 ├── converters/
 │   ├── acquisition\_to\_nwb.py
-│   ├── analysis\_to\_nwb.py
 │   ├── behavior\_to\_nwb.py
 │   ├── general\_to\_nwb.py
 │   ├── intervals\_to\_nwb.py
@@ -39,14 +38,13 @@ NWB\_converter\_AN/
 │   ├── Initiation\_nwb.py
 │   └── nwb\_saving.py
 ├── Subject\_Session\_Selection.csv 
-├── requirement.txt
 ├── convert\_to\_nwb\_for\_AO.py  ← Main conversion script
 
 ````
 
 ---
 
-## 🚀 Usage
+## 💻 Work Environment
 Follow the environment setup instructions provided in [LSENS-Lab-Immersion repository](https://github.com/loris-fab/LSENS-Lab-Immersion.git), and include the link to it.
 
 ## 🧩 How to use
