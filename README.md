@@ -58,37 +58,18 @@ python convert_to_nwb_for_AO.py input_folder output_folder
 *Options:*
 * `--print_progress`: Print progress of conversion with more details
 
+for exemple :
+```bash
+python convert_to_nwb_for_AO.py data/mouse_anastasia/WR data/output
+```
+
 If everything runs correctly, you should see an output similar to this:
 
 ```bash
-Conversion to NWB: 🔁 AO039_20190626.mat:  50%|███████████           | 1/2 [00:00<00:00,  7.01it/s]
 **************************************************************************
- NWB conversion /Volumes/Petersen-Lab/z_LSENS/Share/Loris_Fabbro/AO/mat_files/AO039_20190626.mat
- 
-📃 Creating config file for NWB conversion :
-📑 Created NWB file :
-ephys Whisker Rewarded (WR+) mouse: The mouse was trained to lick within 1 s following a whisker stimulus (go trials) but not in the absence of the stimulus (no-go trials). High-density extracellular recordings were performed using Neuronexus A1x32-Poly2-10 mm-50 s-177 probes.
-     o 📌 Add general metadata
-         - Subject metadata
-         - Session metadata
-         - Device metadata
-         - Extracellular electrophysiology metadata
-     o ⏸️ Add intervall container
-     o 🧠 Add units container
-     o ⚙️ Add processing container
-         - Behavior data
-         - No ephys data for AN sessions
- 
-🔎 Validating NWB file before saving...
-     o ✅ File is valid, no errors detected.
- 
-💾 Saving NWB file
-     o 📂 NWB file saved at:
-         - /Volumes/Petersen-Lab/z_LSENS/Share/Loris_Fabbro/AO/NWB_files/AO039_20190626_160524.nwb
+-_-_-_-_-_-_-_-_-_-_-_-_-_-NWB conversion_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+Conversion to NWB is finished: 100%|████████| 1/1 [00:35<00:00, 35.98s/it]
 **************************************************************************
-Conversion to NWB is finished: 100%|████████████████████████████| 2/2 [00:59<00:00, 29.78s/it]
-⚠️ Conversion completed with errors for 1 files
-    - PL200_D1.mat: Unable to open file (file signature not found)
 ```
 
 
@@ -103,5 +84,3 @@ For any questions related to the code, please contact: loris.fabbro@epfl.ch
 
 
 ---
-
-

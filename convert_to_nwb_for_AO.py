@@ -17,7 +17,6 @@ import converters.general_to_nwb
 import converters.Initiation_nwb
 import converters.acquisition_to_nwb
 import converters.units_to_nwb
-import converters.analysis_to_nwb
 import converters.intervals_to_nwb
 
 
@@ -39,8 +38,8 @@ def convert_data_to_nwb_an_mat(mat_file, output_folder):
         data_group = f['Data'] if 'Data' in f else f
         data = {key: data_group[key][()] for key in data_group.keys()}
 
-    print("**************************************************************************")
-    print(f" NWB conversion {mat_file}")
+    
+    print(f" Conversion {mat_file}")
     print(" ")
     print(f"📃 Creating config file for NWB conversion :")
     importlib.reload(converters.Initiation_nwb)
@@ -119,7 +118,6 @@ def convert_data_to_nwb_an_mat(mat_file, output_folder):
     else:
         print("     o ❌ NWB file is invalid, deleting file...")
         os.remove(nwb_path)
-    print("**************************************************************************")
 
     # Delete .yaml config file 
     if os.path.exists(output_path) and output_path.endswith('.yaml'):
@@ -132,6 +130,9 @@ def convert_data_to_nwb_an(input_folder, output_folder,print_progress=False):
     :param input_folder: Path to the folder containing .mat files
     :param output_folder: Path to the folder where NWB files will be saved
     """
+    print("**************************************************************************")
+    print("-_-_-_-_-_-_-_-_-_-_-_-_-_-NWB conversion_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-")
+
     assert os.path.exists(input_folder), "file input_folder does not exist"
     files = [f for f in os.listdir(input_folder) if f.endswith(".mat")]
     # Iterate over each .mat file in the folder
@@ -161,7 +162,8 @@ def convert_data_to_nwb_an(input_folder, output_folder,print_progress=False):
                 list_errors.append(str(e))
             if i == len(files):
                 pbar.set_description(f"Conversion to NWB is finished")
-            gc.collect() 
+            gc.collect()
+        print("**************************************************************************")
         if len(list_errors_files) > 0:
             print(f"⚠️ Conversion completed with errors for {len(list_errors_files)} files")
             for i, file in enumerate(list_errors_files):
