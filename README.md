@@ -12,7 +12,7 @@ Oryshchuk et al., *Distributed and specific encoding of sensory, motor, and deci
 
 ## ⚙️ Features
 
-- Reads `.mat` files containing raw data  
+- Reads `.mat` files containing raw data and `.csv` files containing subject metadata
 - Converts to NWB structure including:
   - General metadata (subject, session…)
   - Time intervals (e.g., trials)
@@ -58,8 +58,9 @@ python convert_to_nwb_for_AO.py input_folder output_folder
 
 for exemple :
 ```bash
-python convert_to_nwb_for_AO.py data/mouse_anastasia/WR data/output
+python convert_to_nwb_for_AO.py //sv-nas1.rcp.epfl.ch/Petersen-Lab/analysis/Sylvain_Crochet/DATA_REPOSITORY/Oryshchuk_Spike&LFP_2024  //sv-nas1.rcp.epfl.ch/Petersen-Lab/z_LSENS/Share/Loris_Fabbro/AO/NWB_files
 ```
+BE CARFULE : The .mat files must be retrieved from either the **WR- mice** or **WR+ mice** folders. So add it to the input_folder_path
 
 If everything runs correctly, you should see an output similar to this:
 
