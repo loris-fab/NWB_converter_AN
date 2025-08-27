@@ -1,16 +1,6 @@
 """_summary_
 """
-import os
-import h5py
-import gc
-import sys
-import importlib
-import argparse
-import platform
-import numpy as np
-from tqdm import tqdm
-from pynwb import NWBHDF5IO, validate
-from contextlib import redirect_stdout
+# Imports converters
 import converters.behavior_to_nwb
 import converters.nwb_saving
 import converters.general_to_nwb
@@ -20,6 +10,20 @@ import converters.units_to_nwb
 import converters.intervals_to_nwb
 
 
+# Imports libraries
+from contextlib import redirect_stdout
+from pynwb import NWBHDF5IO, validate
+from pathlib import Path
+from tqdm import tqdm
+import numpy as np
+import importlib
+import argparse
+import platform
+import h5py
+import os
+import gc
+
+
 ############################################################
 # Functions for converting data to NWB format for AN sessions
 #############################################################
@@ -27,109 +31,103 @@ import converters.intervals_to_nwb
 
 def convert_data_to_nwb_an_mat(mat_file, output_folder):
     """
-    Converts data from a config file to an NWB file.
-    :param config_file: Path to the yaml config file containing mouse ID and metadata for the session to convert
-    :param output_folder: Path to the folder to save NWB files
+    Convert a single .mat file (AN session) into an NWB file.
+
+    Parameters
+    ----------
+    mat_file : str
+        Path to the .mat file to convert.
+    output_folder : str
+        Output directory where the NWB file will be saved.
+
     """
+
+    # --- Load the .csv file ---------------------------------------------------
     csv_file = "Subject_Session_Selection.csv"
 
-    # Load the .mat file 
+    # --- Load the .mat file ---------------------------------------------------
+    # If "Data" group exists, use it; otherwise, use root.
     with h5py.File(mat_file, 'r') as f:
         data_group = f['Data'] if 'Data' in f else f
         data = {key: data_group[key][()] for key in data_group.keys()}
-
     
-    print(f" Conversion {mat_file}")
-    print(" ")
-    print(f"📃 Creating config file for NWB conversion :")
-    importlib.reload(converters.Initiation_nwb)
+        if "VideoOnsets" in data and "TrialOnsets_All" in data: # Small modification for video onsets
+            if abs(np.max(data["TrialOnsets_All"] - data["VideoOnsets"])) < 1e-3:
+                data["VideoOnsets"] = data["TrialOnsets_All"]
+
+    # ---  NWB conversion for this session -------------------------------
+    # Creating config file for NWB conversion
     Rewarded = converters.Initiation_nwb.Rewarded_or_not(mat_file=data, csv_file=csv_file)
+
     if Rewarded:
-        if abs(np.max(data["TrialOnsets_All"] - data["VideoOnsets"])) < 1e-3:
-            data["VideoOnsets"] = data["TrialOnsets_All"]
         output_path, config_file = converters.Initiation_nwb.files_to_config_Rewarded(data,csv_file=csv_file, output_folder=output_folder)
     else:
         output_path, config_file = converters.Initiation_nwb.files_to_config_NonRewarded(data,csv_file=csv_file, output_folder=output_folder)
 
-    print("📑 Created NWB file :")
-    importlib.reload(converters.general_to_nwb)
-    print(config_file['session_metadata']["session_description"])
+    # Created NWB file 
     nwb_file = converters.Initiation_nwb.create_nwb_file_an(config_file=output_path) # same for rewarded and non-rewarded sessions                                      
     
-    print("     o 📌 Add general metadata")
-    importlib.reload(converters.acquisition_to_nwb)
+    # Add general metadata
     signal, regions = converters.acquisition_to_nwb.extract_lfp_signal(data, mat_file)
     electrode_table_region, unique_values = converters.general_to_nwb.add_general_container(nwb_file=nwb_file, data=data, mat_file=mat_file, regions=regions) # same for rewarded and non-rewarded sessions
-    print("         - Subject metadata")
-    print("         - Session metadata")
-    print("         - Device metadata")
-    print("         - Extracellular electrophysiology metadata")
-    
-    print("     o 📶 Add acquisition container")
+
+    # Add acquisition container
     converters.acquisition_to_nwb.add_lfp_acquisition(nwb_file=nwb_file, signal_array=signal, electrode_region=electrode_table_region) # same for rewarded and non-rewarded sessions  
 
-    print("     o ⏸️ Add intervall container")
-    importlib.reload(converters.intervals_to_nwb)
+    # Add intervall container
     if Rewarded:
-        converters.intervals_to_nwb.add_intervals_container_Rewarded(nwb_file=nwb_file, data=data, mat_file=mat_file)
+        converters.intervals_to_nwb.add_intervals_container_Rewarded(nwb_file=nwb_file, data=data)
     else:
-        converters.intervals_to_nwb.add_intervals_container_NonRewarded(nwb_file=nwb_file, data=data, mat_file=mat_file)
+        converters.intervals_to_nwb.add_intervals_container_NonRewarded(nwb_file=nwb_file, data=data)
 
-    print("     o 🧠 Add units container")
-    importlib.reload(converters.units_to_nwb)
-    sampling_rate =  30000
-    converters.units_to_nwb.add_units_container(nwb_file=nwb_file, data=data, unique_values=unique_values, mat_file=mat_file , sampling_rate = sampling_rate , regions=regions) # same for rewarded and non-rewarded sessions
+    # Add units container
+    converters.units_to_nwb.add_units_container(nwb_file=nwb_file, data=data, unique_values=unique_values, mat_file=mat_file , regions=regions) # same for rewarded and non-rewarded sessions
 
-    print("     o ⚙️ Add processing container")
-    importlib.reload(converters.behavior_to_nwb)
+    # Add processing container
     if Rewarded:
-        print("         - Behavior data")
         converters.behavior_to_nwb.add_behavior_container_Rewarded(nwb_file=nwb_file, data=data, config=config_file)
     else:
-        print("         - Behavior data")
         converters.behavior_to_nwb.add_behavior_container_NonRewarded(nwb_file=nwb_file, data=data, config_file=config_file)
 
-    print("         - No ephys data for AN sessions")
-
-    importlib.reload(converters.nwb_saving)
-    if Rewarded:
-        output_folder = os.path.join(output_folder, "WR+")
-    else:
-        output_folder = os.path.join(output_folder, "WR-")
+    # Save NWB file
+    output_folder = os.path.join(output_folder, "WR+") if Rewarded else os.path.join(output_folder, "WR-")
     os.makedirs(output_folder, exist_ok=True)
     nwb_path = converters.nwb_saving.save_nwb_file(nwb_file=nwb_file, output_folder=output_folder)
-        
-    print(" ")
-    print("🔎 Validating NWB file before saving...")
-    with NWBHDF5IO(nwb_path, 'r') as io:
-        errors = validate(io=io)
 
-    if not errors:
-        print("     o ✅ File is valid, no errors detected.")
-    else:
-        print("     o ❌ Errors detected:")
-        for err in errors:
-            print("         -", err)
-    print(" ")
-    print("💾 Saving NWB file")
-    if not errors:
-        print("     o 📂 NWB file saved at:")
-        print("         -", nwb_path)
-    else:
-        print("     o ❌ NWB file is invalid, deleting file...")
+    # Validating NWB file before saving...
+    with NWBHDF5IO(nwb_path, 'r') as io:
+        nwb_errors = validate(io=io)
+                # If validation errors occur, delete the invalid NWB file
+    if nwb_errors:
         os.remove(nwb_path)
+        raise RuntimeError("NWB validation failed: " + "; ".join(map(str, nwb_errors)))
 
     # Delete .yaml config file 
     if os.path.exists(output_path) and output_path.endswith('.yaml'):
         os.remove(output_path)
 
 
-def convert_data_to_nwb_an(input_folder, output_folder,print_progress=False):
+
+def convert_data_to_nwb_an(input_folder, output_folder):
     """
-    Converts all .mat files in a folder to NWB format for AN sessions.
-    :param input_folder: Path to the folder containing .mat files
-    :param output_folder: Path to the folder where NWB files will be saved
+    Convert all .mat files in a folder into NWB format (AN sessions).
+
+    Parameters
+    ----------
+    input_folder : str
+        Folder containing the .mat files.
+    output_folder : str
+        Folder where NWB files will be saved.
     """
+    # reload converters
+    importlib.reload(converters.behavior_to_nwb)
+    importlib.reload(converters.nwb_saving)
+    importlib.reload(converters.general_to_nwb)
+    importlib.reload(converters.Initiation_nwb)
+    importlib.reload(converters.acquisition_to_nwb)
+    importlib.reload(converters.units_to_nwb)
+    importlib.reload(converters.intervals_to_nwb)
+
     print("**************************************************************************")
     print("-_-_-_-_-_-_-_-_-_-_-_-_-_-NWB conversion_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-")
 
@@ -138,38 +136,36 @@ def convert_data_to_nwb_an(input_folder, output_folder,print_progress=False):
     # Iterate over each .mat file in the folder
     list_errors_files = []
     list_errors = []
-    i = 0
+    print("Converting data to NWB format for mouse:", list(set([f.split("_")[0] for f in files])))
     with tqdm(files, desc="Conversion .mat files") as pbar:
-        for file in pbar:
-            i += 1
+        for i, file in enumerate(pbar, start=1):
             full_path = os.path.join(input_folder, file)
             pbar.set_description(f"Conversion to NWB: 🔁 {file}")
             try:
-                if print_progress:
-                    convert_data_to_nwb_an_mat(mat_file=full_path,output_folder=output_folder)
-                    def clear_console():
-                        if platform.system() == "Windows":
-                            os.system("cls")
-                        else:
-                            os.system("clear")
-                    clear_console()
-                else:
-                    with open(os.devnull, "w") as fnull, redirect_stdout(fnull):
-                        convert_data_to_nwb_an_mat(mat_file=full_path,output_folder=output_folder)
+                # Silence
+                with open(os.devnull, "w") as fnull, redirect_stdout(fnull):
+                    # Run the conversion
+                    convert_data_to_nwb_an_mat(mat_file=full_path,output_folder=output_folder)    
             except Exception as e:
-                #print(f"⚠️ Error in {file} : {e}")
                 list_errors_files.append(file)
                 list_errors.append(str(e))
+
             if i == len(files):
                 pbar.set_description(f"Conversion to NWB is finished")
             gc.collect()
-        print("**************************************************************************")
+
+
         if len(list_errors_files) > 0:
             print(f"⚠️ Conversion completed with errors for {len(list_errors_files)} files")
             for i, file in enumerate(list_errors_files):
                 print(f"    - {file}: {list_errors[i]}")
-        gc.collect() 
-    return None
+            
+        # Clean up any leftover config files (.yaml)
+        for f in Path(output_folder).glob("*.yaml"):  
+            f.unlink()
+
+        print("**************************************************************************")
+
 
 #_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 #_-_-_-_-_-_-_-_-_-_-_-_-_-_-_ MAIN _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
@@ -179,8 +175,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Convert data to NWB format for AN sessions")
     parser.add_argument("input_folder", type=str, help="Path to the folder containing .mat files")
     parser.add_argument("output_folder", type=str, help="Path to the folder where the NWB files will be saved")
-    parser.add_argument("--print_progress", action="store_true", help="Print progress of conversion")
 
 
     args = parser.parse_args()
-    convert_data_to_nwb_an(input_folder=args.input_folder, output_folder=args.output_folder , print_progress=args.print_progress)
+    convert_data_to_nwb_an(input_folder=args.input_folder, output_folder=args.output_folder)

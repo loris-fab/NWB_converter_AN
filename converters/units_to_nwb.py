@@ -3,7 +3,7 @@ import h5py
 import numpy as np
 from pynwb.misc import Units
 
-def add_units_container(nwb_file, data, unique_values, mat_file , sampling_rate ,regions):
+def add_units_container(nwb_file, data, unique_values, mat_file ,regions):
     """
     Add or complete the 'units' container in the NWB file using neuronal spike and metadata.
 
@@ -17,12 +17,9 @@ def add_units_container(nwb_file, data, unique_values, mat_file , sampling_rate 
         A region referencing all electrodes (64).
     mat_file : str
         Path to the .mat file for dereferencing MATLAB cell arrays.
-    sampling_rate : int
-        The sampling rate used for the recordings (in Hz).
     regions : list
         List of brain regions where the units were recorded.
     """
-
         
     units_table = Units(
     name="units",
@@ -61,35 +58,44 @@ def add_units_container(nwb_file, data, unique_values, mat_file , sampling_rate 
         def get_str(ref):  # Convert HDF5 reference to string
             return ''.join(chr(c[0]) for c in f[ref][:])
 
-
+        # Loop over each unit
         for i in range(n_units):
             # Spike times
             spike_ref = data["spikets"][i][0]
             spike_times = np.array(f[spike_ref]).flatten()
             nspikes = spike_times.shape[0]
+
+            # Anatomical coordinates (ML, DV, AP)
             raw_coords_ref = data["ML_DV_AP"][i][0]
-            coords = np.array(f[raw_coords_ref]).flatten()  # <- toujours 1D
+            coords = np.array(f[raw_coords_ref]).flatten() 
             ml, dv, ap = coords.tolist()
 
             if coords.size != 3:
                 print(f"Warning: Unit {i} has invalid CCF coords, skipping")
                 continue
-            
+            #_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_--_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+            # TWO REGIONS (sum == 2) 
             if np.sum(regions) == 2:
+                # Two brain regions → adjust electrode index accordingly
                 area_one, area_two = unique_values
                 if get_str(data["Area"][i][0]) == area_one:
                     spike_main_channel = int(data["Spike_MainChannel"][i][0])
                 elif get_str(data["Area"][i][0]) == area_two:
                     spike_main_channel = int(data["Spike_MainChannel"][i][0]) + 32
                 spike_main_channel = spike_main_channel - 1
+            # ONE REGION (sum == 1) 
             elif np.sum(regions) == 1:
                 area_one = unique_values
                 spike_main_channel = int(data["Spike_MainChannel"][i][0]) - 1
             else:
+            # THREE REGIONS (unsupported) 
                 raise ValueError("Expected one or two unique areas, found: {}".format(np.sum(regions)))
-            
-            # Other metadata
+            #_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_--_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+
+ 
             baseline_vec = np.array(data["BaselineFR_Mean"][i][0])
+
+            # unit_info dictionary and add to nwb_file
             unit_info = {
                 "cluster_id": int(data["clusterID"][i][0]),
                 "main_channel": spike_main_channel,
@@ -98,7 +104,7 @@ def add_units_container(nwb_file, data, unique_values, mat_file , sampling_rate 
                 'nSpikes': nspikes,
                 "waveformDuration_peakTrough": float(data["width"][i][0]),
                 "fractionRPVs_estimatedTauR": float(data["RP_Violation"][i][0]),
-                'sampling_rate' : sampling_rate,
+                'sampling_rate' : 30000,
                 "ccf_ml": float(ml),
                 "ccf_ap": float(ap),
                 "ccf_dv": float(dv),

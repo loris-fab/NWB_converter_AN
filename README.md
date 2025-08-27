@@ -18,7 +18,6 @@ Oryshchuk et al., *Distributed and specific encoding of sensory, motor, and deci
   - Time intervals (e.g., trials)
   - Units (e.g., spikes)
   - Behavioral data (licks, rewards…)
-  - Optional analysis containers (e.g., LFPmean)
 - Validates the NWB file after conversion
 
 
@@ -42,31 +41,53 @@ NWB\_converter\_AN/
 
 ````
 
----
+
 
 ## 💻 Work Environment
 Follow the environment setup instructions provided in [LSENS-Lab-Immersion repository](https://github.com/loris-fab/LSENS-Lab-Immersion.git), and include the link to it.
 
 ## 🧩 How to use
-Run the following command in the terminal, replacing `input_folder` with the path to the folder containing Anastasiia Oryshchuk’s `.mat` files, and `output_folder` with the destination directory where you want the resulting NWB files to be saved.
+
+Please find below the key information
+
+1. `input_folder` → path to the directory ontaining Anastasiia Oryshchuk’s `.mat` files.
+2. `output_folder` → directory where you want the NWB file to be saved
+
+
+### Commande in the terminal
+Run the following command in the terminal, replacing the arguments :
 
 ```bash
 python convert_to_nwb_for_AO.py input_folder output_folder
 ```
-*Options:*
-* `--print_progress`: Print progress of conversion with more details
 
 for exemple :
 ```bash
-python convert_to_nwb_for_AO.py //sv-nas1.rcp.epfl.ch/Petersen-Lab/analysis/Sylvain_Crochet/DATA_REPOSITORY/Oryshchuk_Spike&LFP_2024  //sv-nas1.rcp.epfl.ch/Petersen-Lab/z_LSENS/Share/Loris_Fabbro/AO/NWB_files
+python convert_to_nwb_for_AO.py //sv-nas1.rcp.epfl.ch/Petersen-Lab/analysis/Sylvain_Crochet/DATA_REPOSITORY/Oryshchuk_Spike&LFP_2024/WR- mice //sv-nas1.rcp.epfl.ch/Petersen-Lab/z_LSENS/Share/Loris_Fabbro/AO/NWB_files
 ```
 BE CARFULE : The .mat files must be retrieved from either the **WR- mice** or **WR+ mice** folders. So add it to the input_folder_path
 
+### Run inside a Jupyter Notebook
+
+You can also call the conversion function directly in a Jupyter Notebook without using the command line.
+Simply import the function `convert_data_to_nwb_pl` from your script and call it with the proper arguments:
+
+*for exemple for window:* 
+```python
+from convert_to_nwb_for_AO import convert_data_to_nwb_an
+
+convert_data_to_nwb_an(
+    input_folder = "//sv-nas1.rcp.epfl.ch/Petersen-Lab/analysis/Sylvain_Crochet/DATA_REPOSITORY/Oryshchuk_Spike&LFP_2024/WR- mice",
+    output_folder= "//sv-nas1.rcp.epfl.ch/Petersen-Lab/z_LSENS/Share/Loris_Fabbro/AO/NWB_files",
+)
+```
+### Outcome
 If everything runs correctly, you should see an output similar to this:
 
 ```bash
 **************************************************************************
 -_-_-_-_-_-_-_-_-_-_-_-_-_-NWB conversion_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
+Converting data to NWB format for mouse: ['AO028'...]
 Conversion to NWB is finished: 100%|████████| 1/1 [00:35<00:00, 35.98s/it]
 **************************************************************************
 ```

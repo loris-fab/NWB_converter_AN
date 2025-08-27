@@ -46,13 +46,22 @@ def extract_lfp_signal(data, mat_file):
     np.ndarray
         Array of shape (n_timepoints, n_channels)
     """
+    EXPECTED_SHANKS = 3
+    VALID_CHANNEL_COUNTS = [32, 64, 96]
+
     with h5py.File(mat_file, 'r') as f:
         lfp_refs = data["LFPs"]  # shape (2, 1)
         blocks = []
+
+        # Presence flags (default: all present)
         WS1, mPFC, tjM1 = True, True, True
-        for i in range(3):  # 3 shanks
+
+        for i in range(EXPECTED_SHANKS):  # 3 shanks
+            # Some .mat exports store a reference in a cell (shape (1,))
             ref = lfp_refs[i][0] if hasattr(lfp_refs[i], '__getitem__') else lfp_refs[i]
             mat = np.array(f[ref])
+
+            # Expect a 2D array. Otherwise, mark the shank as missing.
             if mat.ndim != 2:
                 if i == 0:
                     WS1 = False
@@ -63,10 +72,15 @@ def extract_lfp_signal(data, mat_file):
             else:
                 mat = mat.T                   
                 blocks.append(mat)
+
         if not blocks:
             raise ValueError("All blocks are empty. Cannot extract LFP signal.")
+        
+        # Merge available shanks
         full_array = np.concatenate(blocks, axis=0)
-        if full_array.T.shape[1] not in [32, 64, 96]:
+
+        # Final consistency check
+        if full_array.T.shape[1] not in VALID_CHANNEL_COUNTS:
             raise ValueError(f"Unexpected number of channels: {full_array.T.shape[1]}")
 
     return full_array.T , [WS1, mPFC, tjM1]  # Transpose to shape (T, 32 or 64 or 96)

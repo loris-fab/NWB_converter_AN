@@ -8,9 +8,29 @@ from pynwb.epoch import TimeIntervals
 # Functions for converting intervals to NWB format for AN sessions
 ###############################################################
 
-def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
+def add_intervals_container_Rewarded(nwb_file, data: dict) -> None:
     """
-    Add detailed trial information to the NWBFile for a rewarded whisker detection task.
+    Add trial information for a rewarded whisker detection task to the NWBFile.
+
+    This function creates or updates the NWB trial table with detailed metadata 
+    about each trial, including:
+      - trial type (stimulus vs no stimulus),
+      - whisker stimulation parameters,
+      - response window times,
+      - trial outcome (hit, miss, correct rejection, false alarm),
+      - licking and jaw movement information.
+
+    Parameters
+    ----------
+    nwb_file : pynwb.NWBFile
+        The NWB file object to which trials will be added.
+    data : dict
+        Dictionary containing trial-level data extracted from the .mat file.
+
+    Returns
+    -------
+    None
+        Updates the NWB file in place.
     """
 
     duration = 2.0
@@ -19,12 +39,14 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
     stim_indices = np.asarray(data['StimIndices']).flatten().astype(int)
     stim_amps = np.asarray(data['StimAmps']).flatten()
     reaction_lat = np.asarray(data['ReactionTimes']).flatten()
+
+        # Absolute reaction times (trial onset + latency); keep NaN when latency equals onset logic
     reaction_abs = trial_onsets + reaction_lat
     reaction_abs = np.array([float(el) if el != trial_onsets[index] else np.nan for index, el in enumerate(reaction_abs)], dtype=float)
     n_trials = len(trial_onsets)
     jaw_onsets_raw = np.asarray(data['JawOnsetsTms']).flatten()
 
-    # --- Response classification ---
+    # --- Response classification and licking behavior ---
     hit = np.asarray(data['HitIndices']).flatten().astype(bool)
     miss = np.asarray(data['MissIndices']).flatten().astype(bool)
     cr = np.asarray(data['CRIndices']).flatten().astype(bool)
@@ -32,6 +54,7 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
 
     response_data = np.full(n_trials, np.nan, dtype=float)
     lick_flag = response_data.copy()
+        # perf codes: 0=miss, 1=hit, 2=CR, 3=FA
     response_data[miss] = 0.0  # Miss
     response_data[hit] = 1.0   # Hit
     response_data[cr] = 2.0    # CR
@@ -95,9 +118,28 @@ def add_intervals_container_Rewarded(nwb_file, data: dict, mat_file) -> None:
 
 
 
-def add_intervals_container_NonRewarded(nwb_file, data: dict, mat_file) -> None:
+def add_intervals_container_NonRewarded(nwb_file, data: dict) -> None:
     """
-    Add detailed trial (whisker stimulus) information to the NWBFile for a non rewarded whisker detection task.
+    Add trial information for a non-rewarded whisker detection task to the NWBFile.
+
+    This function creates or updates the NWB trial table with trial metadata, 
+    including:
+      - whisker stimulus timing and amplitude,
+      - response window times,
+      - performance label (hit or miss),
+      - lick presence and lick times.
+
+    Parameters
+    ----------
+    nwb_file : pynwb.NWBFile
+        The NWB file object to which trials will be added.
+    data : dict
+        Dictionary containing trial-level data extracted from the .mat file.
+
+    Returns
+    -------
+    None
+        Updates the NWB file in place.
     """
 
 

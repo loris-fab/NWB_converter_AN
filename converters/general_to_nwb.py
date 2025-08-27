@@ -67,8 +67,20 @@ def add_general_container(nwb_file, data, mat_file, regions):
     str_wS1 = "C2 barrel column of whisker primary somatosensory cortex (wS1):  insertion with a 30 deg ML angle relative to vertical at location determined using intrinsic optical signal."
     str_tjM1 = "tongue and jaw primary motor cortex (tjM1):  insertion at AP=+2.0 mm, ML=-2.0 mm with a 10 deg ML angle relative to vertical."
 
+    def _desc_for(name: str) -> str:
+        if name == "mPFC":
+            return str_mPFC
+        if name == "tjM1":
+            return str_tjM1
+        if name == "wS1":
+            return str_wS1
+        raise ValueError(f"Unexpected region name: {name}")
+
+    # ----------------------- TWO REGIONS (sum == 2) -----------------------
     if np.sum(regions) == 2:
         ml_dv_ap  = np.asarray(data.get("ML_DV_AP_32"))   
+        
+        # Read region labels (Area) from the .mat
         with h5py.File(mat_file, 'r') as f:
             area_array = np.array([
             f[ref[0]][()].tobytes().decode('utf-16le').strip()
@@ -76,6 +88,7 @@ def add_general_container(nwb_file, data, mat_file, regions):
 
             unique_values, first_indices = np.unique(area_array, return_index=True)
 
+            # Retrieve coordinates for each shank (two shanks → 64 electrodes total)
             ref = ml_dv_ap[first_indices[0]][0] if hasattr(ml_dv_ap[1], '__getitem__') else ml_dv_ap[first_indices[0]]
             obj = f[ref]
             shank1 = np.array(obj)
@@ -84,26 +97,10 @@ def add_general_container(nwb_file, data, mat_file, regions):
             shank2 = np.array(obj)
             shank_total = np.concatenate((shank1, shank2), axis=1)
             assert shank_total.shape == (3, 64), "Expected shape of shank_total is (3, 64), got {}".format(shank_total.shape)
-
-        if unique_values[0] == "mPFC":
-            info_reg1 = str_mPFC
-        elif unique_values[0] == "tjM1":
-            info_reg1 = str_tjM1
-        elif unique_values[0] == "wS1":
-            info_reg1 = str_wS1
-        else:
-            info_reg1 = ""
-            raise ValueError(f"Unexpected region name: {unique_values[0]}")
-
-        if unique_values[1] == "mPFC":
-            info_reg2 = str_mPFC
-        elif unique_values[1] == "tjM1":
-            info_reg2 = str_tjM1
-        elif unique_values[1] == "wS1":
-            info_reg2 = str_wS1
-        else:
-            info_reg2 = ""
-            raise ValueError(f"Unexpected region name: {unique_values[1]}")
+            
+        # Human-readable region descriptions
+        info_reg1 = _desc_for(unique_values[0])
+        info_reg2 = _desc_for(unique_values[1])
             
         # Create group for each shank
         shank_1 = nwb_file.create_electrode_group(
@@ -124,9 +121,10 @@ def add_general_container(nwb_file, data, mat_file, regions):
             nwb_file.add_electrode_column(name="ccf_ap", description="ccf coordinate in ap axis")
             nwb_file.add_electrode_column(name="ccf_dv", description="ccf coordinate in dv axis")
 
-            # Add electrodes from Shank1
+            # Add electrodes from Shank1 and Shank2
             for i in range(64):
                 ml, dv, ap = shank_total[:, i]
+                # First 32 belong to shank_1 (region 0), next 32 to shank_2 (region 1)
                 if i < 32:
                     shank = shank_1
                     loca = unique_values[0]
@@ -137,24 +135,17 @@ def add_general_container(nwb_file, data, mat_file, regions):
                 nwb_file.add_electrode(
                     id=i,
                     location=loca,
-                    # Group, group_name,index_on_probe,
                     ccf_ml=ml,
                     ccf_dv=dv,
                     ccf_ap=ap,
-                    # shank_col,shank_row,ccf_id,ccf_acronym,cff_name,cff_parent_id,cff_parent_acronym,cff_parent_name,
-                    #rel_x = np.nan,  # x coordinate in the probe space
-                    #rel_y = np.nan,  # y coordinate in the probe space
-                    #rel_z = np.nan,  # z coordinate in the probe space
-                    #imp=np.nan,
-                    #filtering="none",
                     group = shank,
                 )
 
-    if np.sum(regions) == 3:
-        raise ValueError("This function currently supports only 2 regions (e.g., Shank1 and Shank2). Please check the regions provided in the data.")
-
+    # ------------------------ ONE REGION (sum == 1) -----------------------
     if np.sum(regions) == 1:
-        ml_dv_ap  = np.asarray(data.get("ML_DV_AP_32"))   
+        ml_dv_ap  = np.asarray(data.get("ML_DV_AP_32"))  
+        
+        # Coordinates for a single shank (32 electrodes) 
         with h5py.File(mat_file, 'r') as f:
             ref = ml_dv_ap[1][0] if hasattr(ml_dv_ap[1], '__getitem__') else ml_dv_ap[1]
             obj = f[ref]
@@ -171,8 +162,6 @@ def add_general_container(nwb_file, data, mat_file, regions):
             unique_values = "tjM1"
             info_reg = str_tjM1
         else:
-            unique_values = "Unknown"
-            info_reg = ""
             raise ValueError(f"Unexpected region name: {unique_values}")
 
         # Create group for each shank
@@ -194,18 +183,16 @@ def add_general_container(nwb_file, data, mat_file, regions):
                 nwb_file.add_electrode(
                     id=i,
                     location=unique_values,
-                    # Group, group_name,index_on_probe,
                     ccf_ml=ml,
                     ccf_dv=dv,
                     ccf_ap=ap,
-                    # shank_col,shank_row,ccf_id,ccf_acronym,cff_name,cff_parent_id,cff_parent_acronym,cff_parent_name,
-                    #rel_x = np.nan,  # x coordinate in the probe space
-                    #rel_y = np.nan,  # y coordinate in the probe space
-                    #rel_z = np.nan,  # z coordinate in the probe space
-                    #imp=np.nan,
-                    #filtering="none",
                     group = shank_1,
                 )
+    
+    # ----------------------- THREE REGIONS (unsupported) -------------------
+    if np.sum(regions) == 3:
+        raise ValueError("This function currently supports only 2 regions (e.g., Shank1 and Shank2). Please check the regions provided in the data.")
+
 
     # ##############################################################
     # 3. Return region (useful for linking to ElectricalSeries)
