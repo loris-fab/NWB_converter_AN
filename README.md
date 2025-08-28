@@ -44,11 +44,11 @@ NWB\_converter\_AN/
 
 
 ## 💻 Work Environment
-Follow the <Environment setup> instructions provided in [LSENS-Lab-Immersion repository](https://github.com/loris-fab/LSENS-Lab-Immersion.git), and include the link to it.
+Follow the **< Environment setup >** instructions provided in [LSENS-Lab-Immersion repository](https://github.com/loris-fab/LSENS-Lab-Immersion.git), and include the link to it.
 
 ## 🧩 How to use
 
-Whether you run the pipeline from the **terminal** or from **Jupyter**, it is essential to ensure that you are using the correct environment. If you are working in *Visual Studio Code*, follow the <Verification> steps in the [LSENS-Lab-Immersion repository](https://github.com/loris-fab/LSENS-Lab-Immersion.git) to confirm that you are using the right environment either in the terminal when executing the pipeline there, or in Jupyter when running it from notebooks. Once confirmed, you can proceed with the instructions further down to run the pipeline.
+Whether you run the pipeline from the **terminal** or from **Jupyter**, it is essential to ensure that you are using the correct environment. If you are working in *Visual Studio Code*, follow the **< Verification >** steps in the [LSENS-Lab-Immersion repository](https://github.com/loris-fab/LSENS-Lab-Immersion.git) to confirm that you are using the right environment either in the terminal when executing the pipeline there, or in Jupyter when running it from notebooks. Once confirmed, you can proceed with the instructions further down to run the pipeline.
 
 Now, Please find below the key information
 
