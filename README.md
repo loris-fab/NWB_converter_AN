@@ -44,17 +44,20 @@ NWB\_converter\_AN/
 
 
 ## 💻 Work Environment
-Follow the environment setup instructions provided in [LSENS-Lab-Immersion repository](https://github.com/loris-fab/LSENS-Lab-Immersion.git), and include the link to it.
+Follow the <Environment setup> instructions provided in [LSENS-Lab-Immersion repository](https://github.com/loris-fab/LSENS-Lab-Immersion.git), and include the link to it.
 
 ## 🧩 How to use
 
-Please find below the key information
+Whether you run the pipeline from the **terminal** or from **Jupyter**, it is essential to ensure that you are using the correct environment. If you are working in *Visual Studio Code*, follow the <Verification> steps in the [LSENS-Lab-Immersion repository](https://github.com/loris-fab/LSENS-Lab-Immersion.git) to confirm that you are using the right environment either in the terminal when executing the pipeline there, or in Jupyter when running it from notebooks. Once confirmed, you can proceed with the instructions further down to run the pipeline.
+
+Now, Please find below the key information
 
 1. `input_folder` → path to the directory ontaining Anastasiia Oryshchuk’s `.mat` files.
 2. `output_folder` → directory where you want the NWB file to be saved
 
 
-### Commande in the terminal
+### Run pipline in the terminal
+
 Run the following command in the terminal, replacing the arguments :
 
 ```bash
@@ -67,20 +70,26 @@ python convert_to_nwb_for_AO.py //sv-nas1.rcp.epfl.ch/Petersen-Lab/analysis/Sylv
 ```
 BE CARFULE : The .mat files must be retrieved from either the **WR- mice** or **WR+ mice** folders. So add it to the input_folder_path
 
-### Run inside a Jupyter Notebook
+### Run pipeline inside a Jupyter Notebook
 
 You can also call the conversion function directly in a Jupyter Notebook without using the command line.
 Simply import the function `convert_data_to_nwb_pl` from your script and call it with the proper arguments:
 
 *for exemple for window:* 
 ```python
-from convert_to_nwb_for_AO import convert_data_to_nwb_an
+import importlib
+import convert_to_nwb_for_AO
 
-convert_data_to_nwb_an(
-    input_folder = "//sv-nas1.rcp.epfl.ch/Petersen-Lab/analysis/Sylvain_Crochet/DATA_REPOSITORY/Oryshchuk_Spike&LFP_2024/WR- mice",
-    output_folder= "//sv-nas1.rcp.epfl.ch/Petersen-Lab/z_LSENS/Share/Loris_Fabbro/AO/NWB_files",
-)
+input_folder_serveur  = "//sv-nas1.rcp.epfl.ch/Petersen-Lab/analysis/Sylvain_Crochet/DATA_REPOSITORY/Oryshchuk_Spike&LFP_2024"
+WRpos = input_folder_serveur + "/WR+ mice"
+WRneg = input_folder_serveur + "/WR- mice"
+output_folder_serveur = "//sv-nas1.rcp.epfl.ch/Petersen-Lab/z_LSENS/Share/Loris_Fabbro/AO/NWB_files"
+importlib.reload(convert_to_nwb_for_AO)
+convert_to_nwb_for_AO.convert_data_to_nwb_an(input_folder=WRneg, output_folder=output_folder_serveur)
 ```
+
+Note: you must specify either *WRpos* or *WRneg* in the function call, depending on whether you want to convert the WR+ or WR− mice.
+
 ### Outcome
 If everything runs correctly, you should see an output similar to this:
 
