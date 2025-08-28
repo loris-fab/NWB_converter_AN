@@ -101,7 +101,7 @@ Conversion to NWB is finished: 100%|████████| 1/1 [00:35<00:00, 
 **************************************************************************
 ```
 
-
+For each session, an `.nwb` file named with the session identifier is written under `WR+/` or `WR-/` inside the chosen output directory. The script prints a summary and performs NWB validation before final save.
 
 
 ## ✍️ Author
