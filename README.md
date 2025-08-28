@@ -73,7 +73,7 @@ BE CARFULE : The .mat files must be retrieved from either the **WR- mice** or **
 ### Run pipeline inside a Jupyter Notebook
 
 You can also call the conversion function directly in a Jupyter Notebook without using the command line.
-Simply import the function `convert_data_to_nwb_pl` from your script and call it with the proper arguments:
+Simply import the function `convert_data_to_nwb_an` from your script and call it with the proper arguments:
 
 *for exemple for window:* 
 ```python
